@@ -1,0 +1,204 @@
+{
+    "kernels": [
+        {
+            "name": "transpose_NCHW2CNHW_V2_2D_WG",
+            "constraints": [
+                {"type": "argument", "name": "in", "offset": 0, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "out", "offset": 8, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "in_off", "offset": 16, "min": 0, "max": 0},
+                {"type": "argument", "name": "out_off", "offset": 20, "min": 0, "max": 0},
+                {"type": "argument", "name": "rd_blck", "offset": 24, "min": 56, "max": 56},
+                {"type": "argument", "name": "hw_rd", "offset": 28, "min": 28, "max": 28},
+                {"type": "argument", "name": "N", "offset": 32, "min": 1, "max": 1},
+                {"type": "argument", "name": "C", "offset": 36, "min": 64, "max": 64},
+                {"type": "argument", "name": "H", "offset": 40, "min": 2, "max": 2},
+                {"type": "argument", "name": "W", "offset": 44, "min": 2, "max": 2},
+                {"type": "argument", "name": "", "offset": 48, "min": 3136, "max": 3136},
+                {"type": "argument", "name": "", "offset": 52, "min": 784, "max": 784},
+                {"type": "argument", "name": "", "offset": 56, "min": 0, "max": 0},
+                {"type": "argument", "name": "", "offset": 64, "min": 0, "max": 0},
+                {"type": "argument", "name": "", "offset": 72, "min": 0, "max": 0},
+                {"type": "grid_size", "value": [784, 1, 1]},
+                {"type": "block_size", "value": [256, 1, 1]}
+            ]
+        },
+        {
+            "name": "transpose_CNHW2NCHW_V1_1D_WG_float4",
+            "constraints": [
+                {"type": "argument", "name": "in", "offset": 0, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "out", "offset": 8, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "in_off", "offset": 16, "min": 0, "max": 0},
+                {"type": "argument", "name": "out_off", "offset": 20, "min": 0, "max": 0},
+                {"type": "argument", "name": "rd_blck", "offset": 24, "min": 56, "max": 56},
+                {"type": "argument", "name": "hw_rd", "offset": 28, "min": 28, "max": 28},
+                {"type": "argument", "name": "N", "offset": 32, "min": 1, "max": 1},
+                {"type": "argument", "name": "C", "offset": 36, "min": 64, "max": 64},
+                {"type": "argument", "name": "H", "offset": 40, "min": 2, "max": 2},
+                {"type": "argument", "name": "W", "offset": 44, "min": 2, "max": 2},
+                {"type": "argument", "name": "", "offset": 48, "min": 3136, "max": 3136},
+                {"type": "argument", "name": "", "offset": 56, "min": 0, "max": 0},
+                {"type": "argument", "name": "", "offset": 64, "min": 0, "max": 0},
+                {"type": "argument", "name": "", "offset": 72, "min": 0, "max": 0},
+                {"type": "grid_size", "value": [784, 1, 1]},
+                {"type": "block_size", "value": [256, 1, 1]}
+            ]
+        },
+        {
+            "name": "transpose_CNHW2NCHW_V1_2D_WG_float4",
+            "constraints": [
+                {"type": "argument", "name": "in", "offset": 0, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "out", "offset": 8, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "in_off", "offset": 16, "min": 0, "max": 0},
+                {"type": "argument", "name": "out_off", "offset": 20, "min": 0, "max": 0},
+                {"type": "argument", "name": "rd_blck", "offset": 24, "min": 56, "max": 56},
+                {"type": "argument", "name": "hw_rd", "offset": 28, "min": 28, "max": 28},
+                {"type": "argument", "name": "N", "offset": 32, "min": 1, "max": 1},
+                {"type": "argument", "name": "C", "offset": 36, "min": 64, "max": 64},
+                {"type": "argument", "name": "H", "offset": 40, "min": 2, "max": 2},
+                {"type": "argument", "name": "W", "offset": 44, "min": 2, "max": 2},
+                {"type": "argument", "name": "", "offset": 48, "min": 3136, "max": 3136},
+                {"type": "argument", "name": "", "offset": 56, "min": 0, "max": 0},
+                {"type": "argument", "name": "", "offset": 64, "min": 0, "max": 0},
+                {"type": "argument", "name": "", "offset": 72, "min": 0, "max": 0},
+                {"type": "grid_size", "value": [784, 1, 1]},
+                {"type": "block_size", "value": [256, 1, 1]}
+            ]
+        },
+        {
+            "name": "transpose_CNHW2NCHW_V1_1D_WG_float",
+            "constraints": [
+                {"type": "argument", "name": "in", "offset": 0, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "out", "offset": 8, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "in_off", "offset": 16, "min": 0, "max": 0},
+                {"type": "argument", "name": "out_off", "offset": 20, "min": 0, "max": 0},
+                {"type": "argument", "name": "rd_blck", "offset": 24, "min": 56, "max": 56},
+                {"type": "argument", "name": "hw_rd", "offset": 28, "min": 28, "max": 28},
+                {"type": "argument", "name": "N", "offset": 32, "min": 1, "max": 1},
+                {"type": "argument", "name": "C", "offset": 36, "min": 64, "max": 64},
+                {"type": "argument", "name": "H", "offset": 40, "min": 2, "max": 2},
+                {"type": "argument", "name": "W", "offset": 44, "min": 2, "max": 2},
+                {"type": "argument", "name": "", "offset": 48, "min": 3136, "max": 3136},
+                {"type": "argument", "name": "", "offset": 56, "min": 0, "max": 0},
+                {"type": "argument", "name": "", "offset": 64, "min": 0, "max": 0},
+                {"type": "argument", "name": "", "offset": 72, "min": 0, "max": 0},
+                {"type": "grid_size", "value": [784, 1, 1]},
+                {"type": "block_size", "value": [256, 1, 1]}
+            ]
+        },
+        {
+            "name": "Im2d2Col_wg1_x4_imb56_1449_stride1",
+            "constraints": [
+                { "type": "argument", "name": "data_size_off", "offset": 0, "min": 150528, "max": 150528 },
+                { "type": "argument", "name": "im", "offset": 8, "min": 0, "max": 1099511627776 },
+                { "type": "argument", "name": "im_offset", "offset": 16, "min": 0, "max": 0 },
+                { "type": "argument", "name": "h", "offset": 20, "min": 224, "max": 224 },
+                { "type": "argument", "name": "w", "offset": 24, "min": 224, "max": 224 },
+                { "type": "argument", "name": "wei_h", "offset": 28, "min": 7, "max": 7 },
+                { "type": "argument", "name": "wei_w", "offset": 32, "min": 7, "max": 7 },
+                { "type": "argument", "name": "out_h", "offset": 36, "min": 112, "max": 112 },
+                { "type": "argument", "name": "out_w", "offset": 40, "min": 112, "max": 112 },
+                { "type": "argument", "name": "pad_h", "offset": 44, "min": 3, "max": 3 },
+                { "type": "argument", "name": "pad_w", "offset": 48, "min": 3, "max": 3 },
+                { "type": "argument", "name": "stride_h", "offset": 52, "min": 2, "max": 2 },
+                { "type": "argument", "name": "stride_w", "offset": 56, "min": 2, "max": 2 },
+                { "type": "argument", "name": "dilation_h", "offset": 60, "min": 1, "max": 1 },
+                { "type": "argument", "name": "dilation_w", "offset": 64, "min": 1, "max": 1 },
+                { "type": "argument", "name": "col", "offset": 72, "min": 57671680, "max": 57671680 },
+                { "type": "grid_size", "value": [ 168, 1, 1 ] },
+                { "type": "block_size", "value": [ 256, 1, 1 ] }
+            ]
+        },
+        {
+            "name": "Im2d2Col_wg1_x1_imb4_1105_stride1",
+            "constraints": [
+                { "type": "argument", "name": "data_size_off", "offset": 0, "min": 150528, "max": 150528 },
+                { "type": "argument", "name": "im", "offset": 8, "min": 0, "max": 1099511627776 },
+                { "type": "argument", "name": "im_offset", "offset": 16, "min": 0, "max": 0 },
+                { "type": "argument", "name": "h", "offset": 20, "min": 224, "max": 224 },
+                { "type": "argument", "name": "w", "offset": 24, "min": 224, "max": 224 },
+                { "type": "argument", "name": "wei_h", "offset": 28, "min": 7, "max": 7 },
+                { "type": "argument", "name": "wei_w", "offset": 32, "min": 7, "max": 7 },
+                { "type": "argument", "name": "out_h", "offset": 36, "min": 112, "max": 112 },
+                { "type": "argument", "name": "out_w", "offset": 40, "min": 112, "max": 112 },
+                { "type": "argument", "name": "pad_h", "offset": 44, "min": 3, "max": 3 },
+                { "type": "argument", "name": "pad_w", "offset": 48, "min": 3, "max": 3 },
+                { "type": "argument", "name": "stride_h", "offset": 52, "min": 2, "max": 2 },
+                { "type": "argument", "name": "stride_w", "offset": 56, "min": 2, "max": 2 },
+                { "type": "argument", "name": "dilation_h", "offset": 60, "min": 1, "max": 1 },
+                { "type": "argument", "name": "dilation_w", "offset": 64, "min": 1, "max": 1 },
+                { "type": "argument", "name": "col", "offset": 72, "min": 57671680, "max": 57671680 },
+                { "type": "grid_size", "value": [ 168, 1, 1 ] },
+                { "type": "block_size", "value": [ 256, 1, 1 ] }
+            ]
+        },
+        {
+            "name": "Im2d2Col_wg1_x1_imb2_1105_stride1",
+            "constraints": [
+                { "type": "argument", "name": "data_size_off", "offset": 0, "min": 150528, "max": 150528 },
+                { "type": "argument", "name": "im", "offset": 8, "min": 0, "max": 1099511627776 },
+                { "type": "argument", "name": "im_offset", "offset": 16, "min": 0, "max": 0 },
+                { "type": "argument", "name": "h", "offset": 20, "min": 224, "max": 224 },
+                { "type": "argument", "name": "w", "offset": 24, "min": 224, "max": 224 },
+                { "type": "argument", "name": "wei_h", "offset": 28, "min": 7, "max": 7 },
+                { "type": "argument", "name": "wei_w", "offset": 32, "min": 7, "max": 7 },
+                { "type": "argument", "name": "out_h", "offset": 36, "min": 112, "max": 112 },
+                { "type": "argument", "name": "out_w", "offset": 40, "min": 112, "max": 112 },
+                { "type": "argument", "name": "pad_h", "offset": 44, "min": 3, "max": 3 },
+                { "type": "argument", "name": "pad_w", "offset": 48, "min": 3, "max": 3 },
+                { "type": "argument", "name": "stride_h", "offset": 52, "min": 2, "max": 2 },
+                { "type": "argument", "name": "stride_w", "offset": 56, "min": 2, "max": 2 },
+                { "type": "argument", "name": "dilation_h", "offset": 60, "min": 1, "max": 1 },
+                { "type": "argument", "name": "dilation_w", "offset": 64, "min": 1, "max": 1 },
+                { "type": "argument", "name": "col", "offset": 72, "min": 57671680, "max": 57671680 },
+                { "type": "grid_size", "value": [ 168, 1, 1 ] },
+                { "type": "block_size", "value": [ 256, 1, 1 ] }
+            ]
+        },
+        {
+            "name": "Im2d2Col_wg1_x1_imb1_1105_stride1",
+            "constraints": [
+                { "type": "argument", "name": "data_size_off", "offset": 0, "min": 150528, "max": 150528 },
+                { "type": "argument", "name": "im", "offset": 8, "min": 0, "max": 1099511627776 },
+                { "type": "argument", "name": "im_offset", "offset": 16, "min": 0, "max": 0 },
+                { "type": "argument", "name": "h", "offset": 20, "min": 224, "max": 224 },
+                { "type": "argument", "name": "w", "offset": 24, "min": 224, "max": 224 },
+                { "type": "argument", "name": "wei_h", "offset": 28, "min": 7, "max": 7 },
+                { "type": "argument", "name": "wei_w", "offset": 32, "min": 7, "max": 7 },
+                { "type": "argument", "name": "out_h", "offset": 36, "min": 112, "max": 112 },
+                { "type": "argument", "name": "out_w", "offset": 40, "min": 112, "max": 112 },
+                { "type": "argument", "name": "pad_h", "offset": 44, "min": 3, "max": 3 },
+                { "type": "argument", "name": "pad_w", "offset": 48, "min": 3, "max": 3 },
+                { "type": "argument", "name": "stride_h", "offset": 52, "min": 2, "max": 2 },
+                { "type": "argument", "name": "stride_w", "offset": 56, "min": 2, "max": 2 },
+                { "type": "argument", "name": "dilation_h", "offset": 60, "min": 1, "max": 1 },
+                { "type": "argument", "name": "dilation_w", "offset": 64, "min": 1, "max": 1 },
+                { "type": "argument", "name": "col", "offset": 72, "min": 57671680, "max": 57671680 },
+                { "type": "grid_size", "value": [ 168, 1, 1 ] },
+                { "type": "block_size", "value": [ 256, 1, 1 ] }
+            ]
+        },
+        {
+            "name": "Im2d2Col_wg4_x1_imb1_544_stride0",
+            "constraints": [
+                { "type": "argument", "name": "data_size_off", "offset": 0, "min": 150528, "max": 150528 },
+                { "type": "argument", "name": "im", "offset": 8, "min": 0, "max": 1099511627776 },
+                { "type": "argument", "name": "im_offset", "offset": 16, "min": 0, "max": 0 },
+                { "type": "argument", "name": "h", "offset": 20, "min": 224, "max": 224 },
+                { "type": "argument", "name": "w", "offset": 24, "min": 224, "max": 224 },
+                { "type": "argument", "name": "wei_h", "offset": 28, "min": 7, "max": 7 },
+                { "type": "argument", "name": "wei_w", "offset": 32, "min": 7, "max": 7 },
+                { "type": "argument", "name": "out_h", "offset": 36, "min": 112, "max": 112 },
+                { "type": "argument", "name": "out_w", "offset": 40, "min": 112, "max": 112 },
+                { "type": "argument", "name": "pad_h", "offset": 44, "min": 3, "max": 3 },
+                { "type": "argument", "name": "pad_w", "offset": 48, "min": 3, "max": 3 },
+                { "type": "argument", "name": "stride_h", "offset": 52, "min": 2, "max": 2 },
+                { "type": "argument", "name": "stride_w", "offset": 56, "min": 2, "max": 2 },
+                { "type": "argument", "name": "dilation_h", "offset": 60, "min": 1, "max": 1 },
+                { "type": "argument", "name": "dilation_w", "offset": 64, "min": 1, "max": 1 },
+                { "type": "argument", "name": "col", "offset": 72, "min": 57671680, "max": 57671680 },
+                { "type": "grid_size", "value": [ 168, 1, 1 ] },
+                { "type": "block_size", "value": [ 256, 1, 1 ] }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,240 @@
+#pragma once
+
+#ifdef cl_clang_storage_class_specifiers
+#pragma OPENCL EXTENSION cl_clang_storage_class_specifiers : enable
+#endif
+
+#pragma OPENCL EXTENSION cl_amd_media_ops : enable
+
+__constant uint2 const keccak_round_constants[24] = {
+    (uint2)(0x00000001, 0x00000000), (uint2)(0x00008082, 0x00000000),
+    (uint2)(0x0000808a, 0x80000000), (uint2)(0x80008000, 0x80000000),
+    (uint2)(0x0000808b, 0x00000000), (uint2)(0x80000001, 0x00000000),
+    (uint2)(0x80008081, 0x80000000), (uint2)(0x00008009, 0x80000000),
+    (uint2)(0x0000008a, 0x00000000), (uint2)(0x00000088, 0x00000000),
+    (uint2)(0x80008009, 0x00000000), (uint2)(0x8000000a, 0x00000000),
+    (uint2)(0x8000808b, 0x00000000), (uint2)(0x0000008b, 0x80000000),
+    (uint2)(0x00008089, 0x80000000), (uint2)(0x00008003, 0x80000000),
+    (uint2)(0x00008002, 0x80000000), (uint2)(0x00000080, 0x80000000),
+    (uint2)(0x0000800a, 0x00000000), (uint2)(0x8000000a, 0x80000000),
+    (uint2)(0x80008081, 0x80000000), (uint2)(0x00008080, 0x80000000),
+    (uint2)(0x80000001, 0x00000000), (uint2)(0x80008008, 0x80000000),
+};
+
+#define ROTL64_1(x, y) amd_bitalign((x), (x).s10, 32 - (y))
+#define ROTL64_2(x, y) amd_bitalign((x).s10, (x), 32 - (y))
+
+#define KECCAKF_1600_RND(a, i, outsz)                                          \
+    do {                                                                       \
+        const uint2 m0 = a[0] ^ a[5] ^ a[10] ^ a[15] ^ a[20] ^                 \
+                         ROTL64_1(a[2] ^ a[7] ^ a[12] ^ a[17] ^ a[22], 1);     \
+        const uint2 m1 = a[1] ^ a[6] ^ a[11] ^ a[16] ^ a[21] ^                 \
+                         ROTL64_1(a[3] ^ a[8] ^ a[13] ^ a[18] ^ a[23], 1);     \
+        const uint2 m2 = a[2] ^ a[7] ^ a[12] ^ a[17] ^ a[22] ^                 \
+                         ROTL64_1(a[4] ^ a[9] ^ a[14] ^ a[19] ^ a[24], 1);     \
+        const uint2 m3 = a[3] ^ a[8] ^ a[13] ^ a[18] ^ a[23] ^                 \
+                         ROTL64_1(a[0] ^ a[5] ^ a[10] ^ a[15] ^ a[20], 1);     \
+        const uint2 m4 = a[4] ^ a[9] ^ a[14] ^ a[19] ^ a[24] ^                 \
+                         ROTL64_1(a[1] ^ a[6] ^ a[11] ^ a[16] ^ a[21], 1);     \
+                                                                               \
+        const uint2 tmp = a[1] ^ m0;                                           \
+                                                                               \
+        a[0] ^= m4;                                                            \
+        a[5] ^= m4;                                                            \
+        a[10] ^= m4;                                                           \
+        a[15] ^= m4;                                                           \
+        a[20] ^= m4;                                                           \
+                                                                               \
+        a[6] ^= m0;                                                            \
+        a[11] ^= m0;                                                           \
+        a[16] ^= m0;                                                           \
+        a[21] ^= m0;                                                           \
+                                                                               \
+        a[2] ^= m1;                                                            \
+        a[7] ^= m1;                                                            \
+        a[12] ^= m1;                                                           \
+        a[17] ^= m1;                                                           \
+        a[22] ^= m1;                                                           \
+                                                                               \
+        a[3] ^= m2;                                                            \
+        a[8] ^= m2;                                                            \
+        a[13] ^= m2;                                                           \
+        a[18] ^= m2;                                                           \
+        a[23] ^= m2;                                                           \
+                                                                               \
+        a[4] ^= m3;                                                            \
+        a[9] ^= m3;                                                            \
+        a[14] ^= m3;                                                           \
+        a[19] ^= m3;                                                           \
+        a[24] ^= m3;                                                           \
+                                                                               \
+        a[1] = ROTL64_2(a[6], 12);                                             \
+        a[6] = ROTL64_1(a[9], 20);                                             \
+        a[9] = ROTL64_2(a[22], 29);                                            \
+        a[22] = ROTL64_2(a[14], 7);                                            \
+        a[14] = ROTL64_1(a[20], 18);                                           \
+        a[20] = ROTL64_2(a[2], 30);                                            \
+        a[2] = ROTL64_2(a[12], 11);                                            \
+        a[12] = ROTL64_1(a[13], 25);                                           \
+        a[13] = ROTL64_1(a[19], 8);                                            \
+        a[19] = ROTL64_2(a[23], 24);                                           \
+        a[23] = ROTL64_2(a[15], 9);                                            \
+        a[15] = ROTL64_1(a[4], 27);                                            \
+        a[4] = ROTL64_1(a[24], 14);                                            \
+        a[24] = ROTL64_1(a[21], 2);                                            \
+        a[21] = ROTL64_2(a[8], 23);                                            \
+        a[8] = ROTL64_2(a[16], 13);                                            \
+        a[16] = ROTL64_2(a[5], 4);                                             \
+        a[5] = ROTL64_1(a[3], 28);                                             \
+        a[3] = ROTL64_1(a[18], 21);                                            \
+        a[18] = ROTL64_1(a[17], 15);                                           \
+        a[17] = ROTL64_1(a[11], 10);                                           \
+        a[11] = ROTL64_1(a[7], 6);                                             \
+        a[7] = ROTL64_1(a[10], 3);                                             \
+        a[10] = ROTL64_1(tmp, 1);                                              \
+                                                                               \
+        uint2 m5 = a[0];                                                       \
+        uint2 m6 = a[1];                                                       \
+        a[0] = bitselect(a[0] ^ a[2], a[0], a[1]);                             \
+        a[0] ^= as_uint2(keccak_round_constants[i]);                           \
+        if (outsz > 1) {                                                       \
+            a[1] = bitselect(a[1] ^ a[3], a[1], a[2]);                         \
+            a[2] = bitselect(a[2] ^ a[4], a[2], a[3]);                         \
+            a[3] = bitselect(a[3] ^ m5, a[3], a[4]);                           \
+            a[4] = bitselect(a[4] ^ m6, a[4], m5);                             \
+            if (outsz > 4) {                                                   \
+                m5 = a[5];                                                     \
+                m6 = a[6];                                                     \
+                a[5] = bitselect(a[5] ^ a[7], a[5], a[6]);                     \
+                a[6] = bitselect(a[6] ^ a[8], a[6], a[7]);                     \
+                a[7] = bitselect(a[7] ^ a[9], a[7], a[8]);                     \
+                a[8] = bitselect(a[8] ^ m5, a[8], a[9]);                       \
+                a[9] = bitselect(a[9] ^ m6, a[9], m5);                         \
+                if (outsz > 8) {                                               \
+                    m5 = a[10];                                                \
+                    m6 = a[11];                                                \
+                    a[10] = bitselect(a[10] ^ a[12], a[10], a[11]);            \
+                    a[11] = bitselect(a[11] ^ a[13], a[11], a[12]);            \
+                    a[12] = bitselect(a[12] ^ a[14], a[12], a[13]);            \
+                    a[13] = bitselect(a[13] ^ m5, a[13], a[14]);               \
+                    a[14] = bitselect(a[14] ^ m6, a[14], m5);                  \
+                    m5 = a[15];                                                \
+                    m6 = a[16];                                                \
+                    a[15] = bitselect(a[15] ^ a[17], a[15], a[16]);            \
+                    a[16] = bitselect(a[16] ^ a[18], a[16], a[17]);            \
+                    a[17] = bitselect(a[17] ^ a[19], a[17], a[18]);            \
+                    a[18] = bitselect(a[18] ^ m5, a[18], a[19]);               \
+                    a[19] = bitselect(a[19] ^ m6, a[19], m5);                  \
+                    m5 = a[20];                                                \
+                    m6 = a[21];                                                \
+                    a[20] = bitselect(a[20] ^ a[22], a[20], a[21]);            \
+                    a[21] = bitselect(a[21] ^ a[23], a[21], a[22]);            \
+                    a[22] = bitselect(a[22] ^ a[24], a[22], a[23]);            \
+                    a[23] = bitselect(a[23] ^ m5, a[23], a[24]);               \
+                    a[24] = bitselect(a[24] ^ m6, a[24], m5);                  \
+                }                                                              \
+            }                                                                  \
+        }                                                                      \
+    } while (0)
+
+#define KECCAK_PROCESS(st, out_size)                                           \
+    do {                                                                       \
+        for (int r = 0; r < 24; ++r) {                                         \
+            int os = (r < 23 ? 25 : (out_size));                               \
+            KECCAKF_1600_RND(st, r, os);                                       \
+        }                                                                      \
+    } while (0)
+
+static inline uint2 xor5(const uint2 a, const uint2 b, const uint2 c,
+                         const uint2 d, const uint2 e) {
+    return a ^ b ^ c ^ d ^ e;
+}
+
+static inline uint2 xor3(const uint2 a, const uint2 b, const uint2 c) {
+    return a ^ b ^ c;
+}
+
+static inline uint2 chi(const uint2 a, const uint2 b, const uint2 c) {
+    return a ^ ((~b) & c);
+}
+
+static inline void keccakf_round(uint2 *restrict s, uint2 *restrict t,
+                                 uint2 *restrict u, uint2 *restrict v,
+                                 int round) {
+    /* theta: c = a[0,i] ^ a[1,i] ^ .. a[4,i] */
+    t[0] = xor5(s[0], s[5], s[10], s[15], s[20]);
+    t[1] = xor5(s[1], s[6], s[11], s[16], s[21]);
+    t[2] = xor5(s[2], s[7], s[12], s[17], s[22]);
+    t[3] = xor5(s[3], s[8], s[13], s[18], s[23]);
+    t[4] = xor5(s[4], s[9], s[14], s[19], s[24]);
+
+/* theta: d[i] = c[i+4] ^ rotl(c[i+1],1) */
+/* theta: a[0,i], a[1,i], .. a[4,i] ^= d[i] */
+#pragma unroll
+    for (unsigned x = 0; x < 5; ++x) {
+        *u = ROTL64_1(t[(x + 1) % 5], 1);
+#pragma unroll
+        for (unsigned y = 0; y < 5; ++y) {
+            s[x + y * 5] = xor3(s[x + y * 5], t[(x + 4) % 5], *u);
+        }
+    }
+
+    /* rho pi: b[..] = rotl(a[..], ..) */
+    *u = s[1];
+
+    s[1] = ROTL64_2(s[6], 12);
+    s[6] = ROTL64_1(s[9], 20);
+    s[9] = ROTL64_2(s[22], 29);
+    s[22] = ROTL64_2(s[14], 7);
+    s[14] = ROTL64_1(s[20], 18);
+    s[20] = ROTL64_2(s[2], 30);
+    s[2] = ROTL64_2(s[12], 11);
+    s[12] = ROTL64_1(s[13], 25);
+    s[13] = ROTL64_1(s[19], 8);
+    s[19] = ROTL64_2(s[23], 24);
+    s[23] = ROTL64_2(s[15], 9);
+    s[15] = ROTL64_1(s[4], 27);
+    s[4] = ROTL64_1(s[24], 14);
+    s[24] = ROTL64_1(s[21], 2);
+    s[21] = ROTL64_2(s[8], 23);
+    s[8] = ROTL64_2(s[16], 13);
+    s[16] = ROTL64_2(s[5], 4);
+    s[5] = ROTL64_1(s[3], 28);
+    s[3] = ROTL64_1(s[18], 21);
+    s[18] = ROTL64_1(s[17], 15);
+    s[17] = ROTL64_1(s[11], 10);
+    s[11] = ROTL64_1(s[7], 6);
+    s[7] = ROTL64_1(s[10], 3);
+    s[10] = ROTL64_1(*u, 1);
+
+#pragma unroll
+    for (unsigned x = 0; x < 5; ++x) {
+        int y = x * 5;
+        *u = s[y];
+        *v = s[y + 1];
+#if 0
+        // It generate better code but it cannot fit in 64 registers
+        s[y + 0] = bitselect(s[y + 0] ^ s[y + 2], s[y + 0], s[y + 1]);
+        s[y + 1] = bitselect(s[y + 1] ^ s[y + 3], s[y + 1], s[y + 2]);
+        s[y + 2] = bitselect(s[y + 2] ^ s[y + 4], s[y + 2], s[y + 3]);
+        s[y + 3] = bitselect(s[y + 3] ^ *u, s[y + 3], s[y + 4]);
+        s[y + 4] = bitselect(s[y + 4] ^ *v, s[y + 4], *u);
+#else
+        s[y + 0] = chi(s[y + 0], s[y + 1], s[y + 2]);
+        s[y + 1] = chi(s[y + 1], s[y + 2], s[y + 3]);
+        s[y + 2] = chi(s[y + 2], s[y + 3], s[y + 4]);
+        s[y + 3] = chi(s[y + 3], s[y + 4], *u);
+        s[y + 4] = chi(s[y + 4], *u, *v);
+#endif
+    }
+    /* iota: a[0,0] ^= round constant */
+    s[0] ^= as_uint2(keccak_round_constants[round]);
+}
+
+static inline void keccak_process(uint2 *st, int out_size) {
+    uint2 t[5], u, v;
+#pragma unroll 1
+    for (int r = 0; r < 24; ++r) {
+        keccakf_round(st, t, &u, &v, r);
+    }
+}

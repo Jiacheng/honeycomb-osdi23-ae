@@ -1,0 +1,30 @@
+{
+    "kernels": [
+        {
+            "name": "kmeans_kernel_c",
+            "constraints": [
+                {"type": "argument", "name": "feature", "offset": 0, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "clusters", "offset": 8, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "membership", "offset": 16, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "npoints", "offset": 24, "min": 1000000, "max": 1000000},
+                {"type": "argument", "name": "nclusters", "offset": 28, "min": 5, "max": 5},
+                {"type": "argument", "name": "nfeatures", "offset": 32, "min": 34, "max": 34},
+                {"type": "argument", "name": "_", "offset": 48, "min": 0, "max": 0},
+                {"type": "grid_size", "value": [3907, 1, 1]},
+                {"type": "block_size", "value": [256, 1, 1]}
+            ]
+        },
+        {
+            "name": "kmeans_swap",
+            "constraints": [
+                {"type": "argument", "name": "feature", "offset": 0, "min": 0, "max": 10995116277760},
+                {"type": "argument", "name": "feature_swap", "offset": 8, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "npoints", "offset": 16, "min": 1000000, "max": 1000000},
+                {"type": "argument", "name": "nfeatures", "offset": 20, "min": 34, "max": 34},
+                {"type": "argument", "name": "_", "offset": 24, "min": 0, "max": 0},
+                {"type": "grid_size", "value": [3907, 1, 1]},
+                {"type": "block_size", "value": [256, 1, 1]}
+            ]
+        }
+    ]
+}

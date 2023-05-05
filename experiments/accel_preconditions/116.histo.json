@@ -1,0 +1,69 @@
+{
+    "kernels": [
+        {
+            "name": "histo_prescan_kernel",
+            "constraints": [
+                {"type": "argument", "name": "input", "offset": 0, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "size", "offset": 8, "min": 1035840, "max": 1035840},
+                {"type": "argument", "name": "minmax", "offset": 16, "min": 0, "max": 1099511627776},
+                {"type": "grid_size", "value": [64, 1, 1]},
+                {"type": "block_size", "value": [512, 1, 1]}
+            ]
+        },
+        {
+            "name": "calculateBin",
+            "constraints": [
+                {"type": "argument", "name": "bin", "offset": 0, "min": 0, "max": 0},
+                {"type": "argument", "name": "sm_mapping", "offset": 8, "min": 0, "max": 1099511627776},
+                {"type": "grid_size", "value": [1, 65, 1]},
+                {"type": "block_size", "value": [498, 1, 1]}
+            ]
+        },
+        {
+            "name": "histo_intermediates_kernel",
+            "constraints": [
+                {"type": "argument", "name": "input", "offset": 0, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "height", "offset": 8, "min": 1040, "max": 1040},
+                {"type": "argument", "name": "width", "offset": 12, "min": 996, "max": 996},
+                {"type": "argument", "name": "input_pitch", "offset": 16, "min": 498, "max": 498},
+                {"type": "argument", "name": "sm_mappings", "offset": 24, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "_", "offset": 32, "min": 0, "max": 0},
+                {"type": "argument", "name": "_", "offset": 40, "min": 0, "max": 0},
+                {"type": "grid_size", "value": [1, 65, 1]},
+                {"type": "block_size", "value": [498, 1, 1]}
+            ]
+        },
+        {
+            "name": "histo_main_kernel",
+            "constraints": [
+                {"type": "argument", "name": "sm_mappings", "offset": 0, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "num_elements", "offset": 8, "min": 1035840, "max": 1035840},
+                {"type": "argument", "name": "sm_range_min", "offset": 12, "min": 0, "max": 0},
+                {"type": "argument", "name": "sm_range_max", "offset": 16, "min": 0, "max": 0},
+                {"type": "argument", "name": "histo_height", "offset": 20, "min": 4096, "max": 4096},
+                {"type": "argument", "name": "histo_width", "offset": 24, "min": 256, "max": 256},
+                {"type": "argument", "name": "global_subhisto", "offset": 32, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "global_histo", "offset": 40, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "global_overflow", "offset": 48, "min": 0, "max": 1099511627776},
+                {"type": "grid_size", "value": [14, 2, 1]},
+                {"type": "block_size", "value": [512, 1, 1]}
+            ],
+            "marks": [209]
+        },
+        {
+            "name": "histo_final_kernel",
+            "constraints": [
+                {"type": "argument", "name": "sm_range_min", "offset": 0, "min": 0, "max": 0},
+                {"type": "argument", "name": "sm_range_max", "offset": 4, "min": 0, "max": 0},
+                {"type": "argument", "name": "histo_height", "offset": 8, "min": 4096, "max": 4096},
+                {"type": "argument", "name": "histo_width", "offset": 12, "min": 256, "max": 256},
+                {"type": "argument", "name": "global_subhisto", "offset": 16, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "global_histo", "offset": 24, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "global_overflow", "offset": 32, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "final_histo", "offset": 40, "min": 0, "max": 1099511627776},
+                {"type": "grid_size", "value": [42, 2, 1]},
+                {"type": "block_size", "value": [512, 1, 1]}
+            ]
+        }
+    ]
+}

@@ -1,0 +1,6 @@
+cd 103.stencil/run/run_base_ref_compsys.0000/
+./stencil_exe_base.compsys -o 512x512x98.out -- 512 512 98 20000
+cd ../../../104.lbm/run/run_base_ref_compsys.0000/
+./lbm_exe_base.compsys -i 100_100_130_ldc.of -o reference.dat -- 5000
+cd ../../../110.fft/run/run_base_ref_compsys.0000/
+./fft_exe_base.compsys -i small/array.bin -o result.dat 256 102400 1600

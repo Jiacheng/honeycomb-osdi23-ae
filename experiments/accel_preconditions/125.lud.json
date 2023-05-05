@@ -1,0 +1,34 @@
+{
+    "kernels": [
+        {
+            "name": "lud_diagonal",
+            "constraints": [
+                {"type": "argument", "name": "m", "offset": 0, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "matrix_dim", "offset": 8, "min": 16000, "max": 16000},
+                {"type": "argument", "name": "offset", "offset": 12, "min": 0, "max": 0},
+                {"type": "grid_size", "value": [16, 1, 1]},
+                {"type": "block_size", "value": [16, 1, 1]}
+            ]
+        },
+        {
+            "name": "lud_perimeter",
+            "constraints": [
+                {"type": "argument", "name": "m", "offset": 0, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "matrix_dim", "offset": 8, "min": 16000, "max": 16000},
+                {"type": "argument", "name": "offset", "offset": 12, "min": 0, "max": 0},
+                {"type": "grid_size", "value": [16, 1, 1]},
+                {"type": "block_size", "value": [16, 1, 1]}
+            ]
+        },
+        {
+            "name": "lud_internal",
+            "constraints": [
+                {"type": "argument", "name": "m", "offset": 0, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "matrix_dim", "offset": 8, "min": 16000, "max": 16000},
+                {"type": "argument", "name": "offset", "offset": 12, "min": 0, "max": 0},
+                {"type": "grid_size", "value": [16, 1, 1]},
+                {"type": "block_size", "value": [16, 1, 1]}
+            ]
+        }
+    ]
+}

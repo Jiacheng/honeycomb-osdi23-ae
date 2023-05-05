@@ -1,0 +1,47 @@
+{
+    "kernels": [
+        {
+            "name": "miopenSp3AsmConv_v21_1_3_gfx10_fp32_stride1",
+            "constraints": [
+                {"type": "argument", "name": "", "offset": 0, "min": 1, "max": 1},
+                {"type": "argument", "name": "", "offset": 4, "min": 64, "max": 256},
+                {"type": "argument", "name": "", "offset": 8, "min": 14, "max": 56},
+                {"type": "argument", "name": "", "offset": 12, "min": 14, "max": 56},
+                {"type": "argument", "name": "", "offset": 16, "min": 64, "max": 256},
+                {"type": "argument", "name": "", "offset": 20, "min": 80, "max": 80},
+                {"type": "argument", "name": "", "offset": 24, "min": 1536, "max": 1536},
+                {"type": "argument", "name": "", "offset": 28, "min": 0, "max": 0},
+                {"type": "argument", "name": "", "offset": 32, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "", "offset": 40, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "", "offset": 48, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "", "offset": 56, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "", "offset": 64, "min": 3, "max": 3},
+                {"type": "argument", "name": "", "offset": 68, "min": 3, "max": 3},
+                {"type": "argument", "name": "", "offset": 72, "min": 1, "max": 1},
+                {"type": "argument", "name": "", "offset": 76, "min": 1, "max": 1},
+                {"type": "argument", "name": "", "offset": 80, "min": 14, "max": 56},
+                {"type": "argument", "name": "", "offset": 84, "min": 14, "max": 56},
+                {"type": "argument", "name": "", "offset": 88, "min": 0, "max": 0},
+                {"type": "argument", "name": "", "offset": 96, "min": 0, "max": 0},
+                {"type": "argument", "name": "", "offset": 136, "min": 200704, "max": 802816},
+                {"type": "argument", "name": "", "offset": 140, "min": 784, "max": 12544},
+                {"type": "argument", "name": "", "offset": 144, "min": 56, "max": 224},
+                {"type": "argument", "name": "", "offset": 148, "min": 4, "max": 4},
+                {"type": "argument", "name": "", "offset": 152, "min": 2306, "max": 9216},
+                {"type": "argument", "name": "", "offset": 156, "min": 36, "max": 36},
+                {"type": "argument", "name": "", "offset": 160, "min": 12, "max": 12},
+                {"type": "argument", "name": "", "offset": 164, "min": 4, "max": 4},
+                {"type": "argument", "name": "", "offset": 168, "min": 200704, "max": 802816},
+                {"type": "argument", "name": "", "offset": 172, "min": 784, "max": 12544},
+                {"type": "argument", "name": "", "offset": 176, "min": 56, "max": 224},
+                {"type": "argument", "name": "", "offset": 180, "min": 4, "max": 4},
+                {"type": "argument", "name": "", "offset": 184, "min": 1, "max": 1},
+                {"type": "argument", "name": "", "offset": 188, "min": 200704, "max": 802816},
+                {"type": "argument", "name": "", "offset": 192, "min": 147456, "max": 2359296},
+                {"type": "argument", "name": "", "offset": 196, "min": 200704, "max": 802816},
+                {"type": "grid_size", "value": [784, 1, 1]},
+                {"type": "block_size", "value": [256, 1, 1]}
+            ]
+        }
+    ]
+}

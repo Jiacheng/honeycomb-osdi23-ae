@@ -1,0 +1,11 @@
+{
+    "kernels": [
+        {
+            "name": "_ZN2at6native13reduce_kernelILi512ELi1ENS0_8ReduceOpIfNS0_7MeanOpsIffEEjfLi4EEEEEvT1_",
+            "constraints": [
+                {"type": "grid_size", "value": [784, 1, 1]},
+                {"type": "block_size", "value": [256, 1, 1]}
+            ]
+        }
+    ]
+}

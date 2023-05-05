@@ -1,0 +1,19 @@
+{
+    "kernels": [
+        {
+            "name": "naive_kernel",
+            "constraints": [
+                {"type": "argument", "name": "A0", "offset": 8, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "Anext", "offset": 16, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "nx", "offset": 24, "min": 0, "max": 10000},
+                {"type": "argument", "name": "ny", "offset": 28, "min": 0, "max": 10000},
+                {"type": "argument", "name": "nz", "offset": 32, "min": 0, "max": 10000},
+                {"type": "argument", "name": "_", "offset": 40, "min": 0, "max": 0},
+                {"type": "argument", "name": "_", "offset": 48, "min": 0, "max": 0},
+                {"type": "argument", "name": "_", "offset": 56, "min": 0, "max": 0},
+                {"type": "grid_size", "value": [256, 1, 1]},
+                {"type": "block_size", "value": [256, 1, 1]}
+            ]
+        }
+    ]
+}

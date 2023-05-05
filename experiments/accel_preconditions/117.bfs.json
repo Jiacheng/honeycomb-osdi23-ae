@@ -1,0 +1,35 @@
+{
+    "kernels": [
+        {
+            "name": "BFS_kernel",
+            "constraints": [
+                    {"type": "argument", "name": "q1", "offset": 0, "min": 0, "max": 1099511627776},
+                    {"type": "argument", "name": "q2", "offset": 8, "min": 0, "max": 1099511627776},
+                    {"type": "argument", "name": "g_graph_nodes", "offset": 16, "min": 0, "max": 1099511627776},
+                    {"type": "argument", "name": "g_graph_edges", "offset": 24, "min": 0, "max": 1099511627776},
+                    {"type": "argument", "name": "g_color", "offset": 32, "min": 0, "max": 1099511627776},
+                    {"type": "argument", "name": "g_cost", "offset": 40, "min": 0, "max": 1099511627776},
+                    {"type": "argument", "name": "out_tail", "offset": 48, "min": 0, "max": 1099511627776},
+                    {"type": "argument", "name": "in_tail", "offset": 56, "min": 0, "max": 1099511627776},
+                    {"type": "argument", "name": "num_of_nodes", "offset": 72, "min": 0, "max": 0},
+                    {"type": "argument", "name": "num_t", "offset": 76, "min": 0, "max": 0},
+                    {"type": "argument", "name": "_", "offset": 80, "min": 0, "max": 0},
+                {"type": "grid_size", "value": [256, 1, 1]},
+                {"type": "block_size", "value": [256, 1, 1]}
+            ],
+            "marks": [57, 75, 81, 111, 120, 134, 222]
+        },
+        {
+            "name": "reduce_costs",
+            "constraints": [
+                {"type": "argument", "name": "cost_list", "offset": 0, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "cost_sums", "offset": 8, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "num_of_nodes", "offset": 16, "min": 0, "max": 0},
+                {"type": "argument", "name": "num_parallel_searches", "offset": 20, "min": 0, "max": 0},
+                {"type": "argument", "name": "_", "offset": 24, "min": 0, "max": 0},
+                {"type": "grid_size", "value": [256, 1, 1]},
+                {"type": "block_size", "value": [256, 1, 1]}
+            ]
+        }
+    ]
+}

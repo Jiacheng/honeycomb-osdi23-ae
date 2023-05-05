@@ -1,0 +1,31 @@
+{
+    "kernels": [
+        {
+            "name": "Fan1",
+            "constraints": [
+                {"type": "argument", "name": "m_dev", "offset": 0, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "a_dev", "offset": 8, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "b_dev", "offset": 16, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "size", "offset": 24, "min": 5632, "max": 5632},
+                {"type": "argument", "name": "t", "offset": 28, "min": 0, "max": 0},
+                {"type": "argument", "name": "_", "offset": 32, "min": 0, "max": 0},
+                {"type": "grid_size", "value": [22, 22, 22]},
+                {"type": "block_size", "value": [256, 256, 256]}
+            ]
+        },
+        {
+            "name": "Fan2",
+            "constraints": [
+                {"type": "argument", "name": "m_dev", "offset": 0, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "a_dev", "offset": 8, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "b_dev", "offset": 16, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "size", "offset": 24, "min": 5632, "max": 5632},
+                {"type": "argument", "name": "t", "offset": 28, "min": 0, "max": 0},
+                {"type": "argument", "name": "_", "offset": 32, "min": 0, "max": 0},
+                {"type": "argument", "name": "_", "offset": 40, "min": 0, "max": 0},
+                {"type": "grid_size", "value": [22, 22, 22]},
+                {"type": "block_size", "value": [256, 256, 256]}
+            ]
+        }
+    ]
+}

@@ -1,0 +1,20 @@
+before_script:
+  - source ${HOME}/.cargo/env
+
+stages:
+  - test
+
+test-patch:
+  stage: test
+  script:
+    - dev-support/test-patch.sh $CI_MERGE_REQUEST_TARGET_BRANCH_SHA $CI_COMMIT_BEFORE_SHA
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "master"
+
+test-integration:
+  stage: test
+  script:
+    - dev-support/test-integration.sh
+  only:
+    - schedules

@@ -1,0 +1,69 @@
+{
+    "kernels": [
+        {
+            "name": "memset_kernel",
+            "constraints": [
+                {"type": "argument", "name": "mem_d", "offset": 0, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "ct", "offset": 12, "min": 193474, "max": 193474},
+                {"type": "argument", "name": "_", "offset": 16, "min": 0, "max": 0},
+                {"type": "grid_size", "value": [193536, 1, 1]},
+                {"type": "block_size", "value": [192, 1, 1]}
+            ]
+        },
+        {
+            "name": "initialize_variables",
+            "constraints": [
+                {"type": "argument", "name": "variables", "offset": 0, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "ff_variable", "offset": 8, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "nelr", "offset": 16, "min": 193474, "max": 193474},
+                {"type": "argument", "name": "_", "offset": 24, "min": 0, "max": 0},
+                {"type": "grid_size", "value": [193536, 1, 1]},
+                {"type": "block_size", "value": [192, 1, 1]}
+            ]
+        },
+        {
+            "name": "compute_step_factor",
+            "constraints": [
+                {"type": "argument", "name": "variables", "offset": 0, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "areas", "offset": 8, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "step_factors", "offset": 16, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "nelr", "offset": 24, "min": 193474, "max": 193474},
+                {"type": "argument", "name": "_", "offset": 32, "min": 0, "max": 0},
+                {"type": "grid_size", "value": [193536, 1, 1]},
+                {"type": "block_size", "value": [192, 1, 1]}
+            ]
+        },
+        {
+            "name": "compute_flux",
+            "constraints": [
+                {"type": "argument", "name": "elements_surrounding_elements", "offset": 0, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "normals", "offset": 8, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "variables", "offset": 16, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "ff_variable", "offset": 24, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "fluxes", "offset": 32, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "ff_flux_contribution_density_energy", "offset": 40, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "ff_flux_contribution_momentum_x", "offset": 48, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "ff_flux_contribution_momentum_y", "offset": 56, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "ff_flux_contribution_momentum_z", "offset": 64, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "nelr", "offset": 72, "min": 193474, "max": 193474},
+                {"type": "argument", "name": "_", "offset": 80, "min": 0, "max": 0},
+                {"type": "grid_size", "value": [193536, 1, 1]},
+                {"type": "block_size", "value": [192, 1, 1]}
+            ],
+            "marks": [203, 210, 219, 226, 235, 445, 452, 461, 468, 477, 687, 694, 703, 710, 719, 929, 936, 945, 952, 961]
+        },
+        {
+            "name": "time_step",
+            "constraints": [
+                {"type": "argument", "name": "nelr", "offset": 4, "min": 193474, "max": 193474},
+                {"type": "argument", "name": "old_variables", "offset": 8, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "variables", "offset": 16, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "step_factors", "offset": 24, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "fluxes", "offset": 32, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "_", "offset": 40, "min": 0, "max": 0},
+                {"type": "grid_size", "value": [193536, 1, 1]},
+                {"type": "block_size", "value": [192, 1, 1]}
+            ]
+        }
+    ]
+}

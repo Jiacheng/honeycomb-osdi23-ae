@@ -1,0 +1,29 @@
+{
+    "kernels": [
+        {
+            "name": "clear_cp",
+            "constraints": [
+                {"type": "argument", "name": "a", "offset": 0, "min": 0, "max": 1099511627776},
+                {"type": "grid_size", "value": [16, 1, 1]},
+                {"type": "block_size", "value": [256, 1, 1]}
+            ]
+        },
+        {
+            "name": "clear_any_blocksize",
+            "constraints": [
+                {"type": "argument", "name": "a", "offset": 0, "min": 0, "max": 1099511627776},
+                {"type": "grid_size", "value": [16, 1, 1]},
+                {"type": "block_size", "value": [256, 1, 1]}
+            ]
+        },
+        {
+            "name": "clear_general",
+            "constraints": [
+                {"type": "argument", "name": "a", "offset": 0, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "N", "offset": 8, "min": 0, "max": 4000},
+                {"type": "grid_size", "value": [16, 1, 1]},
+                {"type": "block_size", "value": [256, 1, 1]}
+            ]
+        }
+    ]
+}

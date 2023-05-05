@@ -1,0 +1,18 @@
+{
+    "kernels": [
+        {
+            "name": "gpu_matrix_mult",
+            "constraints": [
+                {"type": "argument", "name": "a", "offset": 0, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "b", "offset": 8, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "c", "offset": 16, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "m", "offset": 24, "min": 4096, "max": 4096},
+                {"type": "argument", "name": "n", "offset": 28, "min": 4096, "max": 4096},
+                {"type": "argument", "name": "k", "offset": 32, "min": 4096, "max": 4096},
+                {"type": "argument", "name": "_align", "offset": 36, "min": 0, "max": 0},
+                {"type": "grid_size", "value": [16, 16, 1]},
+                {"type": "block_size", "value": [256, 256, 1]}
+            ]
+        }
+    ]
+}

@@ -1,0 +1,21 @@
+[package]
+name = "dsl"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[[bin]]
+name = "smcc"
+path = "bin/smcc/main.rs"
+
+#[lib]
+#name = "hypervisor"
+#path = "lib/hypervisor/lib.rs"
+
+[dependencies]
+nom = "7.1"
+nom_locate = "4.0"
+clap = { version = "3.1", features = ["derive"] }
+thiserror = "1.0"
+bitflags = "1.3"

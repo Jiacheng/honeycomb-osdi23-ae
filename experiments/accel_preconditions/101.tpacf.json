@@ -1,0 +1,16 @@
+{
+    "kernels": [
+        {
+            "name": "gen_hists",
+            "constraints": [
+                {"type": "argument", "name": "histograms", "offset": 0, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "all_x_data", "offset": 8, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "dev_binb", "offset": 16, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "NUM_SETS", "offset": 24, "min": 100, "max": 100},
+                {"type": "argument", "name": "NUM_ELEMENTS", "offset": 28, "min": 48589, "max": 48589},
+                {"type": "grid_size", "value": [201, 1, 1]},
+                {"type": "block_size", "value": [256, 1, 1]}
+            ]
+        }
+    ]
+}

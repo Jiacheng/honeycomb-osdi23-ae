@@ -1,0 +1,51 @@
+{
+    "kernels":[
+        {
+            "name": "relu_generic",
+            "constraints": [
+                {"type": "argument","name": "N", "offset": 0, "min": 0,"max": 802816},
+                {"type": "argument","name": "dst", "offset": 8, "min": 0,"max": 1099511627776},
+                {"type": "argument","name": "src", "offset": 16, "min": 0,"max": 1099511627776},
+                {"type": "grid_size", "value": [784, 1, 1]},
+                {"type": "block_size", "value": [256, 1, 1]}
+            ]
+        },
+        {
+            "name": "addalpha_generic",
+            "constraints": [
+                {"type": "argument","name": "N", "offset": 0, "min": 0,"max": 200704},
+                {"type": "argument","name": "c", "offset": 8, "min": 0,"max": 1099511627776},
+                {"type": "argument","name": "a", "offset": 16, "min": 0,"max": 1099511627776},
+                {"type": "argument","name": "b", "offset": 24, "min": 0,"max": 1099511627776},
+                {"type": "grid_size", "value": [196, 1, 1]},
+                {"type": "block_size", "value": [256, 1, 1]}
+            ]
+        },
+        {
+            "name": "max_pool_forward_nchw",
+            "constraints": [
+                {"type": "argument","name": "nthreads", "offset": 0, "min": 200704,"max": 200704},
+                {"type": "argument","name": "bottom_data", "offset": 8, "min": 0,"max": 1099511627776},
+                {"type": "argument","name": "", "offset": 16, "min": 1,"max": 1},
+                {"type": "argument","name": "channels", "offset": 20, "min": 64,"max": 64},
+                {"type": "argument","name": "height", "offset": 24, "min": 112,"max": 112},
+                {"type": "argument","name": "width", "offset": 28, "min": 112,"max": 112},
+                {"type": "argument","name": "pooled_height", "offset": 32, "min": 56,"max": 56},
+                {"type": "argument","name": "pooled_width", "offset": 36, "min": 56,"max": 56},
+                {"type": "argument","name": "top_data", "offset": 40, "min": 0,"max": 1099511627776},
+                {"type": "argument","name": "top_mask", "offset": 48, "min": 0,"max": 1099511627776},
+                {"type": "grid_size", "value": [784, 1, 1]},
+                {"type": "block_size", "value": [256, 1, 1]}
+            ]
+        },
+        {
+            "name": "avg_pool_forward_nchw",
+            "constraints": [
+                {"type": "argument","name": "input", "offset": 0, "min": 0,"max": 1099511627776},
+                {"type": "argument","name": "output", "offset": 8, "min": 0,"max": 1099511627776},
+                {"type": "grid_size", "value": [512, 1, 1]},
+                {"type": "block_size", "value": [1, 1, 1]}
+            ]
+        }
+    ]
+}

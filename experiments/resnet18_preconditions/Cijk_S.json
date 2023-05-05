@@ -1,0 +1,24 @@
+{
+    "kernels": [
+        {
+            "name": "Cijk_S",
+            "constraints": [
+                {"type": "argument", "name": "", "offset": 0, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "", "offset": 8, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "", "offset": 16, "min": 49, "max": 49},
+                {"type": "argument", "name": "", "offset": 20, "min": 0, "max": 0},
+                {"type": "argument", "name": "", "offset": 24, "min": 49, "max": 49},
+                {"type": "argument", "name": "", "offset": 28, "min": 0, "max": 0},
+                {"type": "argument", "name": "", "offset": 32, "min": 49, "max": 49},
+                {"type": "argument", "name": "", "offset": 36, "min": 512, "max": 512},
+                {"type": "argument", "name": "", "offset": 40, "min": 1, "max": 1},
+                {"type": "argument", "name": "", "offset": 44, "min": 0, "max": 0},
+                {"type": "argument", "name": "", "offset": 48, "min": 0, "max": 0},
+                {"type": "argument", "name": "", "offset": 52, "min": 0, "max": 0},
+                {"type": "argument", "name": "", "offset": 56, "min": 0, "max": 0},
+                {"type": "grid_size", "value": [98, 1, 1]},
+                {"type": "block_size", "value": [256, 1, 1]}
+            ]
+        }
+    ]
+}

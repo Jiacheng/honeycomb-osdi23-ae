@@ -1,0 +1,20 @@
+{
+    "kernels": [
+        {
+            "name": "opencl_cutoff_potential_lattice",
+            "constraints": [
+                {"type": "argument", "name": "binDim_x", "offset": 0, "min": 32, "max": 32},
+                {"type": "argument", "name": "binDim_y", "offset": 4, "min": 32, "max": 32},
+                {"type": "argument", "name": "binBaseAddr", "offset": 8, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "offset", "offset": 16, "min": 25368, "max": 25368},
+                {"type": "argument", "name": "regionZeroAddr", "offset": 32, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "zRegionIndex", "offset": 40, "min": 125, "max": 125},
+                {"type": "argument", "name": "NbrListLen", "offset": 48, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "NbrList", "offset": 56, "min": 0, "max": 1099511627776},
+                {"type": "grid_size", "value": [104, 26, 1]},
+                {"type": "block_size", "value": [8, 8, 2]}
+            ],
+            "marks": [159, 180, 189]
+        }
+    ]
+}

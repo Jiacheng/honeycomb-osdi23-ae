@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "vmm-sm-dsl/dsl",
+    "validator",
+    "validator_macros",
+]

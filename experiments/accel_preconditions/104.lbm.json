@@ -1,0 +1,16 @@
+{
+    "kernels": [
+        {
+            "name": "performStreamCollide_kernel",
+            "constraints": [
+                {"type": "argument", "name": "srcGrid", "offset": 0, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "dstGrid", "offset": 8, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "_", "offset": 16, "min": 0, "max": 0},
+                {"type": "argument", "name": "_", "offset": 24, "min": 0, "max": 0},
+                {"type": "argument", "name": "_", "offset": 32, "min": 0, "max": 0},
+                {"type": "grid_size", "value": [1, 100, 130]},
+                {"type": "block_size", "value": [100, 1, 1]}
+            ]
+        }
+    ]
+}

@@ -1,0 +1,19 @@
+{
+    "kernels": [
+        {
+            "name": "hotspot",
+            "constraints": [
+                {"type": "argument", "name": "iteration", "offset": 0, "min": 2, "max": 2},
+                {"type": "argument", "name": "power", "offset": 8, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "temp_src", "offset": 16, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "temp_dst", "offset": 24, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "grid_cols", "offset": 32, "min": 2048, "max": 2048},
+                {"type": "argument", "name": "grid_rows", "offset": 36, "min": 2048, "max": 2048},
+                {"type": "argument", "name": "border_cols", "offset": 40, "min": 2, "max": 2},
+                {"type": "argument", "name": "border_rows", "offset": 44, "min": 2, "max": 2},
+                {"type": "grid_size", "value": [171, 171, 1]},
+                {"type": "block_size", "value": [16, 16, 1]}
+            ]
+        }
+    ]
+}

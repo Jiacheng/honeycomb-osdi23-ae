@@ -1,0 +1,2 @@
+add_subdirectory(sdma_test)
+add_subdirectory(compute_test)

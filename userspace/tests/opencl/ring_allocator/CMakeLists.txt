@@ -1,0 +1,3 @@
+add_executable(ring_allocator_test ring_allocator_test.cc)
+target_link_libraries(ring_allocator_test GTest::gtest_main opencl_hsa)
+add_test(ring_allocator_test ring_allocator_test)

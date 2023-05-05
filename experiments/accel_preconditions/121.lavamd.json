@@ -1,0 +1,16 @@
+{
+    "kernels": [
+        {
+            "name": "kernel_gpu_opencl",
+            "constraints": [
+                {"type": "argument", "name": "d_box_gpu", "offset": 64, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "d_rv_gpu", "offset": 72, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "d_qv_gpu", "offset": 80, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "d_fv_gpu", "offset": 88, "min": 0, "max": 1099511627776},
+                {"type": "grid_size", "value": [474552, 1, 1]},
+                {"type": "block_size", "value": [128, 1, 1]}
+            ],
+            "marks": [31, 113, 123, 135, 159, 239]
+        }
+    ]
+}

@@ -1,0 +1,469 @@
+output action cp_resume_rreg(adev: opaque("struct amdgpu_device *"), reg: u32, val: [out] u32, acc_flags: u32) .
+output action cp_resume_wreg(adev: opaque("struct amdgpu_device *"), reg: u32, val: u32, acc_flags: u32) .
+output action cp_resume_wreg32_subfield(adev: opaque("struct amdgpu_device *"), reg: u32, val: u32, mask: u32, acc_flags: u32) .
+output action cp_resume_wreg64(adev: opaque("struct amdgpu_device *"), reg_lo: u32, reg_hi: u32, val: u64, acc_flags: u32) .
+
+#[c_name="IS_SOC15_REG"]
+extern relation soc15_reg(reg: u32, ip: string, inst_id: u32, reg_name: string) . 
+
+#[c_name="IS_VALID_CP_RESUME_STATE"]
+extern relation valid_cp_resume_state(adev: opaque("struct amdgpu_device *"), val: u32, reg_name: string) . 
+
+#[c_name="IS_EQUAL_TO_PROPOSED_MQD"]
+extern relation proposed_mqd_eq(adev: opaque("struct amdgpu_device *"), val: u32, reg_name: string) . 
+#[c_name="IS_EQUAL_TO_PROPOSED_GFX_MQD"]
+extern relation proposed_gfx_mqd_eq(adev: opaque("struct amdgpu_device *"), val: u32, reg_name: string) . 
+#[c_name="IS_EQUAL_TO_PROPOSED_MQD_64"]
+extern relation proposed_mqd_eq_64(adev: opaque("struct amdgpu_device *"), val: u64, reg_name_lo: string, reg_name_hi: string) . 
+
+#[c_name="is_equal"]
+extern relation eq(lhs: u32, rhs: u32) . 
+
+#[c_name="bitand"]
+extern action bitand(ret: [out] u32, val: u32, mask: u32) . 
+
+#[c_name="amdgpu_device_rreg"]
+extern action read_reg(adev: opaque("struct amdgpu_device *"), reg: u32, val: [out] u32, acc_flags: u32) . 
+#[c_name="amdgpu_device_wreg"]
+extern action write_reg(adev: opaque("struct amdgpu_device *"), reg: u32, val: u32, acc_flags: u32) . 
+#[c_name="amdgpu_device_wreg32_subfield"]
+extern action write_reg32_subfield(adev: opaque("struct amdgpu_device *"), reg: u32, val: u32, mask: u32, acc_flags: u32) . 
+#[c_name="amdgpu_device_wreg64"]
+extern action write_reg64(adev: opaque("struct amdgpu_device *"), reg_lo: u32, reg_hi: u32, val: u64, acc_flags: u32) . 
+
+#[c_name="amdgpu_g6_sm_record_wreg"]
+extern action record_wreg(adev: opaque("struct amdgpu_device *"), reg: u32, val: u32, acc_flags: u32) . 
+
+
+#[c_name="warn_unknown_rreg"]
+extern action warn_read_reg(adev: opaque("struct amdgpu_device *"), reg: u32, val: [out] u32, acc_flags: u32) . 
+#[c_name="warn_unknown_wreg"]
+extern action warn_write_reg(adev: opaque("struct amdgpu_device *"), reg: u32, val: u32, acc_flags: u32) . 
+#[c_name="warn_unknown_wreg32_subfield"]
+extern action warn_write_reg32_subfield(adev: opaque("struct amdgpu_device *"), reg: u32, val: u32, mask: u32, acc_flags: u32) . 
+#[c_name="warn_unknown_wreg64"]
+extern action warn_write_reg64(adev: opaque("struct amdgpu_device *"), reg_lo: u32, reg_hi: u32, val: u64, acc_flags: u32) . 
+
+
+#[c_name="CP_RESUME_UPDATE_STATE"]
+extern action update_gfx_state(adev: opaque("struct amdgpu_device *"), bit: string, val: u32) . 
+#[c_name="CP_RESUME_GFX_STATE_CHECK"]
+extern action gfx_state_check(adev: opaque("struct amdgpu_device *"), bit: string, val: u32) . 
+
+#[c_name="ensure_gfx_cp_resume_queue_disabled"]
+extern action ensure_queue_disabled_mask(adev: opaque("struct amdgpu_device *"), mask: u32) . 
+#[c_name="cp_resume_ensure_queue_hwip_disabled"]
+extern action ensure_queue_hwip_disabled(adev: opaque("struct amdgpu_device *")) . 
+#[c_name="CP_RESUME_REG_FIELD_MASK"]
+extern action reg_field_mask(mask: [out] u32, reg: string, fields: string) . 
+
+#[c_name="cp_resume_update_active_grbm"]
+extern action update_active_grbm(adev: opaque("struct amdgpu_device *"), val: u32) . 
+#[c_name="cp_resume_ensure_hqd_queue_init"]
+extern action ensure_hqd_queue_init(adev: opaque("struct amdgpu_device *"), val: u32) . 
+
+// This is the check that happens right before writing to CP_HQD_PQ_DOORBELL_CONTROL 
+#[c_name="cp_resume_ensure_pq_doorbell_config_before"]
+extern action ensure_pq_doorbell_config_before(adev: opaque("struct amdgpu_device *"), en: u32, proposed_val: u32) . 
+
+// This is the check on doorbells when writing to CP_PQ_STATUS
+#[c_name="cp_resume_ensure_pq_doorbell_config"]
+extern action ensure_pq_doorbell_config(adev: opaque("struct amdgpu_device *"), en: u32) . 
+
+
+#[c_name="SOC15_FIELD_MASK_EQ"]
+extern relation field_mask_eq(mask:u32, reg: string, fields: string) . 
+#[c_name="SOC15_FIELD_VAL_EN"]
+extern action field_val_en(en: [out] u32, val: u32, reg: string, fields: string) . 
+
+
+
+cp_resume_rreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_HQD_ACTIVE"),
+  read_reg(adev, reg, val, acc_flags),
+  bitand(en, val, 1),
+  update_gfx_state(adev, "HQD_ACTIVE", en) ,
+  cut() .
+
+cp_resume_rreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_HQD_EOP_CONTROL"),
+  read_reg(adev, reg, val, acc_flags) ,
+  cut() .
+
+cp_resume_rreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_HQD_PQ_DOORBELL_CONTROL"),
+  read_reg(adev, reg, val, acc_flags),
+  field_val_en(en, val, "CP_HQD_PQ_DOORBELL_CONTROL", "DOORBELL_EN"), 
+  update_gfx_state(adev, "HQD_PQ_DOORBELL_EN", en) ,
+  cut() .
+
+cp_resume_rreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_MQD_CONTROL"),
+  read_reg(adev, reg, val, acc_flags) ,
+  cut() .
+
+cp_resume_rreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_HQD_PQ_CONTROL"),
+  read_reg(adev, reg, val, acc_flags) ,
+  cut() .
+
+cp_resume_rreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_HQD_PQ_RPTR"),
+  read_reg(adev, reg, val, acc_flags) ,
+  cut() .
+
+cp_resume_rreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_HQD_PERSISTENT_STATE"),
+  read_reg(adev, reg, val, acc_flags) ,
+  cut() .
+
+cp_resume_rreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_HQD_IB_CONTROL"),
+  read_reg(adev, reg, val, acc_flags) ,
+  cut() .
+	
+cp_resume_rreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_GFX_MQD_CONTROL"),
+  read_reg(adev, reg, val, acc_flags) ,
+  cut() .
+	
+cp_resume_rreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_GFX_HQD_VMID"),
+  read_reg(adev, reg, val, acc_flags) ,
+  cut() .
+	
+cp_resume_rreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_GFX_HQD_QUEUE_PRIORITY"),
+  read_reg(adev, reg, val, acc_flags) ,
+  cut() .
+	
+cp_resume_rreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_GFX_HQD_QUANTUM"),
+  read_reg(adev, reg, val, acc_flags) ,
+  cut() .
+	
+cp_resume_rreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_GFX_HQD_CNTL"),
+  read_reg(adev, reg, val, acc_flags) ,
+  cut() .
+
+cp_resume_rreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_RB_DOORBELL_CONTROL"),
+  read_reg(adev, reg, val, acc_flags),
+  field_val_en(en, val, "CP_RB_DOORBELL_CONTROL", "DOORBELL_EN"), 
+  update_gfx_state(adev, "RB_DOORBELL_EN", en) ,
+  cut() .
+
+cp_resume_rreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_GFX_HQD_RPTR"),
+  read_reg(adev, reg, val, acc_flags) ,
+  cut() .
+
+cp_resume_rreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmSCRATCH_REG0"),
+  read_reg(adev, reg, val, acc_flags),
+  cut() .
+
+cp_resume_rreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_STAT"),
+  read_reg(adev, reg, val, acc_flags),
+  cut() .
+
+// The last cut off rule
+cp_resume_rreg(adev, reg, val, acc_flags) :-
+  warn_read_reg(adev, reg, val, acc_flags) ,
+  cut().
+
+
+//
+// The MQD is mapped into the GPU memory. The checks ensure no discrepencies between the MQD
+// and the writes to the registers.
+// The actual values are checked during the inspection of the proposed MQD. 
+
+cp_resume_wreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmGRBM_GFX_CNTL"),
+  update_active_grbm(adev, val),
+  write_reg(adev, reg, val, acc_flags) ,
+  cut() .
+
+cp_resume_wreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_HQD_ACTIVE"),
+  ensure_hqd_queue_init(adev, val),
+  write_reg(adev, reg, val, acc_flags),
+  update_gfx_state(adev, "HQD_ACTIVE", val),
+  cut() .
+
+cp_resume_wreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_HQD_DEQUEUE_REQUEST"),
+  write_reg(adev, reg, val, acc_flags) ,
+  cut() .
+
+cp_resume_wreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_HQD_EOP_CONTROL"),
+  proposed_mqd_eq(adev, val, "cp_hqd_eop_control"),
+  write_reg(adev, reg, val, acc_flags) ,
+  cut() .
+
+// The check of MQD is moved into ensure_pq_doorbell_config_before.
+cp_resume_wreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_HQD_PQ_DOORBELL_CONTROL"),
+  field_val_en(en, val, "CP_HQD_PQ_DOORBELL_CONTROL", "DOORBELL_EN"), 
+  ensure_pq_doorbell_config_before(adev, en, val),
+  write_reg(adev, reg, val, acc_flags),
+  record_wreg(adev, reg, val, acc_flags),
+  update_gfx_state(adev, "HQD_PQ_DOORBELL_EN", en) ,
+  cut() .
+
+cp_resume_wreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_HQD_PQ_RPTR"),
+  proposed_mqd_eq(adev, val, "cp_hqd_pq_rptr"),
+  write_reg(adev, reg, val, acc_flags) ,
+  cut() .
+
+cp_resume_wreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_MQD_CONTROL"),
+  proposed_mqd_eq(adev, val, "cp_mqd_control"),
+  write_reg(adev, reg, val, acc_flags) ,
+  cut() .
+
+cp_resume_wreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_HQD_PQ_CONTROL"),
+  proposed_mqd_eq(adev, val, "cp_hqd_pq_control"),
+  gfx_state_check(adev, "HQD_ACTIVE", 0),
+  write_reg(adev, reg, val, acc_flags) ,
+  cut() .
+
+cp_resume_wreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_MEC_DOORBELL_RANGE_LOWER"),
+  valid_cp_resume_state(adev, val, "mec_doorbell_range_lower"),
+  write_reg(adev, reg, val, acc_flags) ,
+  record_wreg(adev, reg, val, acc_flags),
+  cut() .
+
+cp_resume_wreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_MEC_DOORBELL_RANGE_UPPER"),
+  valid_cp_resume_state(adev, val, "mec_doorbell_range_upper"),
+  write_reg(adev, reg, val, acc_flags) ,
+  record_wreg(adev, reg, val, acc_flags),
+  cut() .
+
+cp_resume_wreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_HQD_VMID"),
+  proposed_mqd_eq(adev, val, "cp_hqd_vmid"),
+  gfx_state_check(adev, "HQD_ACTIVE", 0),
+  write_reg(adev, reg, val, acc_flags) ,
+  cut() .
+
+cp_resume_wreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_HQD_PERSISTENT_STATE"),
+  proposed_mqd_eq(adev, val, "cp_hqd_persistent_state"),
+  gfx_state_check(adev, "HQD_ACTIVE", 0),
+  write_reg(adev, reg, val, acc_flags) ,
+  cut() .
+
+cp_resume_wreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_MEC_CNTL_Sienna_Cichlid"),
+  field_val_en(en, val, "CP_MEC_CNTL", "MEC_ME1_HALT , MEC_ME2_HALT"),
+  write_reg(adev, reg, val, acc_flags),
+  update_gfx_state(adev, "CP_COMPUTE_ENABLE", en) ,
+  cut() .
+
+//
+// It doesn't seem that the discrepencies between the MQD and GFX registers
+// actually matters. Skip the consistency checks for other registers, but
+// we still check the validity of the MQD
+//
+// XXX: This is actually not enabled at all?
+cp_resume_wreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_RB_DOORBELL_CONTROL"),
+  field_val_en(en, val, "CP_RB_DOORBELL_CONTROL", "DOORBELL_EN"),
+  proposed_gfx_mqd_eq(adev, val, "cp_rb_doorbell_control"),
+  write_reg(adev, reg, val, acc_flags),
+  update_gfx_state(adev, "RB_DOORBELL_EN", en) ,
+  cut() .
+
+cp_resume_wreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_RB_DOORBELL_RANGE_LOWER"),
+  gfx_state_check(adev, "RB_DOORBELL_EN", 0),
+  valid_cp_resume_state(adev, val, "rb_doorbell_range_lower"),
+  write_reg(adev, reg, val, acc_flags) ,
+  cut() .
+
+cp_resume_wreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_RB_DOORBELL_RANGE_UPPER"),
+  eq(val, 0xffc),
+  gfx_state_check(adev, "RB_DOORBELL_EN", 0),
+  write_reg(adev, reg, val, acc_flags) ,
+  cut() .
+
+cp_resume_wreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmSCRATCH_REG0"),
+  write_reg(adev, reg, val, acc_flags) ,
+  cut() .
+
+cp_resume_wreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_MAX_CONTEXT"),
+  valid_cp_resume_state(adev, val, "max_hw_contexts"),
+  write_reg(adev, reg, val, acc_flags) ,
+  cut() .
+
+cp_resume_wreg(adev, reg, val, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_DEVICE_ID"),
+  eq(val, 1),
+  write_reg(adev, reg, val, acc_flags) ,
+  cut() .
+
+// The last cut off rule
+cp_resume_wreg(adev, reg, val, acc_flags) :-
+  warn_write_reg(adev, reg, val, acc_flags) ,
+  cut() .
+
+
+// Sub fields. Most writes to the subfields enable / disable the GFX queue
+
+cp_resume_wreg32_subfield(adev, reg, val, mask, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_INT_CNTL_RING0"),
+  field_mask_eq(mask, "CP_INT_CNTL_RING0", "CNTX_BUSY_INT_ENABLE , CNTX_EMPTY_INT_ENABLE , CMP_BUSY_INT_ENABLE , GFX_IDLE_INT_ENABLE"),
+  field_val_en(en, val, "CP_INT_CNTL_RING0", "CNTX_BUSY_INT_ENABLE , CNTX_EMPTY_INT_ENABLE , CMP_BUSY_INT_ENABLE , GFX_IDLE_INT_ENABLE"),
+  write_reg32_subfield(adev, reg, val, mask, acc_flags),
+  update_gfx_state(adev, "GUI_INTERRUPT", en),
+  cut() .
+
+cp_resume_wreg32_subfield(adev, reg, val, mask, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmRLC_CP_SCHEDULERS_Sienna_Cichlid"),
+  eq(mask, 0xff),
+  write_reg32_subfield(adev, reg, val, mask, acc_flags),
+  cut() .
+
+cp_resume_wreg32_subfield(adev, reg, val, mask, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_PQ_WPTR_POLL_CNTL"),
+  field_mask_eq(mask, "CP_PQ_WPTR_POLL_CNTL", "EN"),
+  field_val_en(en, val, "CP_PQ_WPTR_POLL_CNTL", "EN"),
+  write_reg32_subfield(adev, reg, val, mask, acc_flags),
+  update_gfx_state(adev, "WPTR_POLL_EN", en),
+  cut() .
+
+cp_resume_wreg32_subfield(adev, reg, val, mask, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_ME_CNTL"),
+  field_mask_eq(mask, "CP_ME_CNTL", "ME_HALT , PFP_HALT , CE_HALT"),
+  field_val_en(en, val, "CP_ME_CNTL", "ME_HALT , PFP_HALT , CE_HALT"),
+  write_reg32_subfield(adev, reg, val, mask, acc_flags),
+  update_gfx_state(adev, "GFX_EN", en),
+  cut() .
+
+//
+// The rule checks that the doorbell is properly configured when enabling the
+// doorbell. It needs to trace back the recorded value of
+// mmCP_MEC_DOORBELL_RANGE_LOWER / mmCP_MEC_DOORBELL_RANGE_UPPER /
+// mmCP_HQD_PQ_DOORBELL_CONTROL. It is possible to (and we probably should)
+// write the whole check in Datalog. Just delegate the checks to an external
+// function for now.
+//
+// FIXME: Actually write it in datalog.
+//
+cp_resume_wreg32_subfield(adev, reg, val, mask, acc_flags) :-
+  soc15_reg(reg, "GC", 0, "mmCP_PQ_STATUS"),
+  field_mask_eq(mask, "CP_PQ_STATUS", "DOORBELL_ENABLE"),
+  field_val_en(en, val, "CP_PQ_STATUS", "DOORBELL_ENABLE"),
+  ensure_pq_doorbell_config(adev, en),
+  write_reg32_subfield(adev, reg, val, mask, acc_flags),
+  update_gfx_state(adev, "HQD_PQ_DOORBELL_EN", en),
+  cut() .
+
+// The last cut off rule
+cp_resume_wreg32_subfield(adev, reg, val, mask, acc_flags) :-
+  warn_write_reg32_subfield(adev, reg, val, mask, acc_flags),
+  cut() .
+
+//
+// 64-bit registers
+//
+
+cp_resume_wreg64(adev, reg_lo, reg_hi, v, acc_flags) :-
+  soc15_reg(reg_lo, "GC", 0, "mmRLC_CSIB_ADDR_LO"),
+  soc15_reg(reg_hi, "GC", 0, "mmRLC_CSIB_ADDR_HI"),
+  ensure_queue_hwip_disabled(adev),
+  ensure_queue_disabled_mask(adev, 0xffffffff),
+  write_reg64(adev, reg_lo, reg_hi, v, acc_flags),
+  cut() .
+
+cp_resume_wreg64(adev, reg_lo, reg_hi, v, acc_flags) :-
+  soc15_reg(reg_lo, "GC", 0, "mmCP_HQD_EOP_BASE_ADDR"),
+  soc15_reg(reg_hi, "GC", 0, "mmCP_HQD_EOP_BASE_ADDR_HI"),
+  proposed_mqd_eq_64(adev, v, "cp_hqd_eop_base_addr_lo", "cp_hqd_eop_base_addr_hi"),
+  ensure_queue_hwip_disabled(adev),
+  reg_field_mask(mask, "CP_RESUME_STATE", "HQD_ACTIVE"),
+  ensure_queue_disabled_mask(adev, mask),
+  write_reg64(adev, reg_lo, reg_hi, v, acc_flags),
+  cut() .
+
+cp_resume_wreg64(adev, reg_lo, reg_hi, v, acc_flags) :-
+  soc15_reg(reg_lo, "GC", 0, "mmCP_HQD_PQ_WPTR_LO"),
+  soc15_reg(reg_hi, "GC", 0, "mmCP_HQD_PQ_WPTR_HI"),
+  proposed_mqd_eq_64(adev, v, "cp_hqd_pq_wptr_lo", "cp_hqd_pq_wptr_hi"),
+  ensure_queue_hwip_disabled(adev),
+  reg_field_mask(mask, "CP_RESUME_STATE", "HQD_ACTIVE"),
+  ensure_queue_disabled_mask(adev, mask),
+  write_reg64(adev, reg_lo, reg_hi, v, acc_flags),
+  cut() .
+
+cp_resume_wreg64(adev, reg_lo, reg_hi, v, acc_flags) :-
+  soc15_reg(reg_lo, "GC", 0, "mmCP_MQD_BASE_ADDR"),
+  soc15_reg(reg_hi, "GC", 0, "mmCP_MQD_BASE_ADDR_HI"),
+  proposed_mqd_eq_64(adev, v, "cp_mqd_base_addr_lo", "cp_mqd_base_addr_hi"),
+  ensure_queue_hwip_disabled(adev),
+  reg_field_mask(mask, "CP_RESUME_STATE", "HQD_ACTIVE"),
+  ensure_queue_disabled_mask(adev, mask),
+  write_reg64(adev, reg_lo, reg_hi, v, acc_flags),
+  cut() .
+
+cp_resume_wreg64(adev, reg_lo, reg_hi, v, acc_flags) :-
+  soc15_reg(reg_lo, "GC", 0, "mmCP_HQD_PQ_BASE"),
+  soc15_reg(reg_hi, "GC", 0, "mmCP_HQD_PQ_BASE_HI"),
+  proposed_mqd_eq_64(adev, v, "cp_hqd_pq_base_lo", "cp_hqd_pq_base_hi"),
+  ensure_queue_hwip_disabled(adev),
+  reg_field_mask(mask, "CP_RESUME_STATE", "HQD_ACTIVE"),
+  ensure_queue_disabled_mask(adev, mask),
+  write_reg64(adev, reg_lo, reg_hi, v, acc_flags),
+  cut() .
+
+cp_resume_wreg64(adev, reg_lo, reg_hi, v, acc_flags) :-
+  soc15_reg(reg_lo, "GC", 0, "mmCP_HQD_PQ_RPTR_REPORT_ADDR"),
+  soc15_reg(reg_hi, "GC", 0, "mmCP_HQD_PQ_RPTR_REPORT_ADDR_HI"),
+  proposed_mqd_eq_64(adev, v, "cp_hqd_pq_rptr_report_addr_lo", "cp_hqd_pq_rptr_report_addr_hi"),
+  ensure_queue_hwip_disabled(adev),
+  reg_field_mask(mask, "CP_RESUME_STATE", "HQD_ACTIVE, HQD_PQ_DOORBELL_EN"),
+  ensure_queue_disabled_mask(adev, mask),
+  write_reg64(adev, reg_lo, reg_hi, v, acc_flags),
+  cut() .
+
+cp_resume_wreg64(adev, reg_lo, reg_hi, v, acc_flags) :- 
+  soc15_reg(reg_lo, "GC", 0, "mmCP_HQD_PQ_WPTR_POLL_ADDR"),
+  soc15_reg(reg_hi, "GC", 0, "mmCP_HQD_PQ_WPTR_POLL_ADDR_HI"),
+  proposed_mqd_eq_64(adev, v, "cp_hqd_pq_wptr_poll_addr_lo", "cp_hqd_pq_wptr_poll_addr_hi"),
+  ensure_queue_hwip_disabled(adev),
+  reg_field_mask(mask, "CP_RESUME_STATE", "HQD_ACTIVE, HQD_PQ_DOORBELL_EN, WPTR_POLL_EN"),
+  ensure_queue_disabled_mask(adev, mask),
+  write_reg64(adev, reg_lo, reg_hi, v, acc_flags),
+  cut() .
+
+cp_resume_wreg64(adev, reg_lo, reg_hi, v, acc_flags) :- 
+  soc15_reg(reg_lo, "GC", 0, "mmCP_HQD_PQ_WPTR_LO"),
+  soc15_reg(reg_hi, "GC", 0, "mmCP_HQD_PQ_WPTR_HI"),
+  proposed_mqd_eq_64(adev, v, "cp_hqd_pq_wptr_lo", "cp_hqd_pq_wptr_hi"),
+  ensure_queue_hwip_disabled(adev),
+  reg_field_mask(mask, "CP_RESUME_STATE", "HQD_ACTIVE, HQD_PQ_DOORBELL_EN, WPTR_POLL_EN"),
+  ensure_queue_disabled_mask(adev, mask),
+  write_reg64(adev, reg_lo, reg_hi, v, acc_flags),
+  cut() .
+
+// The last cut off rule
+cp_resume_wreg64(adev, reg_lo, reg_hi, v, acc_flags) :- 
+  warn_write_reg64(adev, reg_lo, reg_hi, v, acc_flags),
+  cut() .
+
+// queue_disabled(adev) :- 
+//   gfx_cp_resume_state(state, adev),
+//   field_mask(mask, "CP_COMPUTE_ENABLE , GFX_EN , GUI_INTERRPUT , HQD_ACTIVE , HQD_PQ_DOORBELL_EN , RB_DOORBELL_EN", "GFX_CP_RESUME_STATE"),
+//   bitand(val, state, mask),
+//   eq(val, 0) .

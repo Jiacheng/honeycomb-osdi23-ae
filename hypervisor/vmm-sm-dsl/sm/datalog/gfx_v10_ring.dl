@@ -1,0 +1,176 @@
+output action gfx_ring_validate_set_resources(ret: [out] u32, ctx: opaque("struct amdgpu_g6_sm_gfx_v10_ring_validation_ctx *"), pkt: opaque("const u32*")) .
+output action gfx_ring_validate_map_queues(ret: [out] u32, ctx: opaque("struct amdgpu_g6_sm_gfx_v10_ring_validation_ctx *"), pkt: opaque("const u32*")) .
+output action gfx_ring_validate_unmap_queues(ret: [out] u32, ctx: opaque("struct amdgpu_g6_sm_gfx_v10_ring_validation_ctx *"), pkt: opaque("const u32*")) .
+output action gfx_ring_validate_invalidate_tlbs(ret: [out] u32, ctx: opaque("struct amdgpu_g6_sm_gfx_v10_ring_validation_ctx *"), pkt: opaque("const u32*")) .
+output action gfx_ring_validate_write_data(ret: [out] u32, ctx: opaque("struct amdgpu_g6_sm_gfx_v10_ring_validation_ctx *"), pkt: opaque("const u32*")) .
+output action gfx_ring_validate_wait_reg_mem(ret: [out] u32, ctx: opaque("struct amdgpu_g6_sm_gfx_v10_ring_validation_ctx *"), pkt: opaque("const u32*")) .
+output action gfx_ring_validate_set_uconfig_reg(ret: [out] u32, ctx: opaque("struct amdgpu_g6_sm_gfx_v10_ring_validation_ctx *"), pkt: opaque("const u32*")) .
+output action gfx_ring_validate_release_mem(ret: [out] u32, ctx: opaque("struct amdgpu_g6_sm_gfx_v10_ring_validation_ctx *"), pkt: opaque("const u32*")) .
+output action gfx_ring_validate_pfp_sync(ret: [out] u32, ctx: opaque("struct amdgpu_g6_sm_gfx_v10_ring_validation_ctx *"), pkt: opaque("const u32*")) .
+output action gfx_ring_validate_switch_buffer(ret: [out] u32, ctx: opaque("struct amdgpu_g6_sm_gfx_v10_ring_validation_ctx *"), pkt: opaque("const u32*")) .
+output action gfx_ring_validate_context_control(ret: [out] u32, ctx: opaque("struct amdgpu_g6_sm_gfx_v10_ring_validation_ctx *"), pkt: opaque("const u32*")) .
+output action gfx_ring_validate_set_base(ret: [out] u32, ctx: opaque("struct amdgpu_g6_sm_gfx_v10_ring_validation_ctx *"), pkt: opaque("const u32*")) .
+// output action gfx_ring_validate_preamble_cntl(ret: [out] u32, ctx: opaque("struct amdgpu_g6_sm_gfx_v10_ring_validation_ctx *"), pkt: opaque("const u32*")) .
+output action gfx_ring_validate_clear_state(ret: [out] u32, ctx: opaque("struct amdgpu_g6_sm_gfx_v10_ring_validation_ctx *"), pkt: opaque("const u32*")) .
+output action gfx_ring_validate_cond_exec(ret: [out] u32, ctx: opaque("struct amdgpu_g6_sm_gfx_v10_ring_validation_ctx *"), pkt: opaque("const u32*")) .
+output action gfx_ring_validate_frame_control(ret: [out] u32, ctx: opaque("struct amdgpu_g6_sm_gfx_v10_ring_validation_ctx *"), pkt: opaque("const u32*")) .
+output action gfx_ring_validate_copy_data(ret: [out] u32, ctx: opaque("struct amdgpu_g6_sm_gfx_v10_ring_validation_ctx *"), pkt: opaque("const u32*")) .
+output action gfx_ring_validate_acquire_mem(ret: [out] u32, ctx: opaque("struct amdgpu_g6_sm_gfx_v10_ring_validation_ctx *"), pkt: opaque("const u32*")) .
+output action gfx_ring_validate_nop(ret: [out] u32, ctx: opaque("struct amdgpu_g6_sm_gfx_v10_ring_validation_ctx *"), pkt: opaque("const u32*")) .
+
+extern action check_eq_pkt3_payload_len(pkt: opaque("const u32*"), len: u32) .
+extern action check_eq_slice_dw(pkt: opaque("const u32*"), offset: u32, value: string) .
+extern action assign(ret: [out] u32, val: u32) . 
+extern action deref_dw(ret: [out] u32, pkt: opaque("const u32*"), offset: u32) .
+extern action deref_dw_64(ret: [out] u64, pkt: opaque("const u32*"), offset: u32) .
+extern action check_valid_queue_desc(ctx: opaque("struct amdgpu_g6_sm_gfx_v10_ring_validation_ctx *"), queue_desc: u32, doorbell_offset: u32, mqd_addr: u64, wptr_addr: u64) .
+extern action check_unmap_queue_action(ctx: opaque("struct amdgpu_g6_sm_gfx_v10_ring_validation_ctx *"), queue_desc: u32 , doorbell_offset: u32, mqd_addr: u64) .
+extern action check_valid_fence_addr(ctx: opaque("struct amdgpu_g6_sm_gfx_v10_ring_validation_ctx *"), addr: u64) .
+extern action check_valid_slice_read(ctx: opaque("struct amdgpu_g6_sm_gfx_v10_ring_validation_ctx *"), addr: u64, len: u32) .
+extern action check_gfx_ring_read_reg(ctx: opaque("struct amdgpu_g6_sm_gfx_v10_ring_validation_ctx *"), reg: u32, reg_val_offs: u64) .
+
+#[c_name="UPDATE_GFX_RING_INIT_STATE"]
+extern action update_gfx_ring_init_state(ctx: opaque("struct amdgpu_g6_sm_gfx_v10_ring_validation_ctx *"), bit: string, val: u32) . 
+#[c_name="UPDATE_GFX_RING_STATUS"]
+extern action update_gfx_ring_status(ctx: opaque("struct amdgpu_g6_sm_gfx_v10_ring_validation_ctx *"), bit: string, val: u32) . 
+#[c_name="CHECK_GFX_RING_STATE"]
+extern action check_gfx_ring_state(ctx: opaque("struct amdgpu_g6_sm_gfx_v10_ring_validation_ctx *"), bit: string, val: u32) . 
+extern action check_gfx_ring_initialized(ctx: opaque("struct amdgpu_g6_sm_gfx_v10_ring_validation_ctx *")) . 
+extern action check_clear_state_programmed(ctx: opaque("struct amdgpu_g6_sm_gfx_v10_ring_validation_ctx *")) . 
+
+#[c_name="bitand"]
+extern action bitand(ret: [out] u32, val: u32, mask: u32) . 
+
+gfx_ring_validate_set_resources(ret, ctx, pkt) :-
+  check_gfx_ring_initialized(ctx),
+  check_eq_pkt3_payload_len(pkt, 6), 
+  check_eq_slice_dw(pkt, 1, "PACKET3_SET_RESOURCES_VMID_MASK(0) | PACKET3_SET_RESOURCES_QUEUE_TYPE(0)"), 
+  check_eq_slice_dw(pkt, 4, "0, 0, 0, 0"),
+  assign(ret, 1), 
+  cut() .
+
+gfx_ring_validate_map_queues(ret, ctx, pkt) :- check_gfx_ring_initialized(ctx),
+  check_eq_pkt3_payload_len(pkt, 5), 
+  deref_dw(queue_desc, pkt, 1), 
+  deref_dw(doorbell_offset, pkt, 2), 
+  deref_dw_64(mqd_addr, pkt, 3), 
+  deref_dw_64(wptr_addr, pkt, 5), 
+  check_valid_queue_desc(ctx, queue_desc, doorbell_offset, mqd_addr, wptr_addr),
+  assign(ret, 1), 
+  cut() .
+  
+gfx_ring_validate_unmap_queues(ret, ctx, pkt) :- check_gfx_ring_initialized(ctx),
+  check_eq_pkt3_payload_len(pkt, 4),
+  deref_dw(queue_desc, pkt, 1),
+  deref_dw(doorbell_offset, pkt, 2), 
+  deref_dw_64(mqd_addr, pkt, 3), 
+  check_unmap_queue_action(ctx, queue_desc, doorbell_offset, mqd_addr),
+  assign(ret, 1), 
+  cut() .
+
+
+gfx_ring_validate_invalidate_tlbs(ret, ctx, pkt) :- check_gfx_ring_initialized(ctx),
+  check_eq_pkt3_payload_len(pkt, 0),
+  assign(ret, 1), 
+  cut() .
+ 
+// TODO: What checks?
+gfx_ring_validate_write_data(ret, ctx, pkt) :-
+  check_eq_pkt3_payload_len(pkt, 3),
+  assign(ret, 1), 
+  cut() .
+
+// TODO: What checks?
+gfx_ring_validate_wait_reg_mem(ret, ctx, pkt) :-
+  check_eq_pkt3_payload_len(pkt, 5),
+  assign(ret, 1), 
+  cut() .
+
+// TODO: check the reg is mmSCRATCH_REG0
+gfx_ring_validate_set_uconfig_reg(ret, ctx, pkt) :-
+  check_eq_pkt3_payload_len(pkt, 1),
+  assign(ret, 1), 
+  cut() .
+
+
+gfx_ring_validate_release_mem(ret, ctx, pkt) :- check_gfx_ring_initialized(ctx),
+  check_eq_pkt3_payload_len(pkt, 6),
+  deref_dw_64(addr, pkt, 3), 
+  check_valid_fence_addr(ctx, addr),
+  assign(ret, 1), 
+  cut() .
+
+gfx_ring_validate_pfp_sync(ret, ctx, pkt) :- check_gfx_ring_initialized(ctx),
+  check_eq_pkt3_payload_len(pkt, 0),
+  assign(ret, 1), 
+  cut() .
+
+gfx_ring_validate_switch_buffer(ret, ctx, pkt) :- check_gfx_ring_initialized(ctx),
+  check_eq_pkt3_payload_len(pkt, 0),
+  assign(ret, 1), 
+  cut() .
+
+gfx_ring_validate_context_control(ret, ctx, pkt) :-
+  check_eq_pkt3_payload_len(pkt, 1),
+  check_gfx_ring_state(ctx, "PROGRAM_PREAMBLE_CLEAR_STATE", 1), 
+  check_eq_slice_dw(pkt, 1, "0x80000000, 0x80000000"),
+  update_gfx_ring_init_state(ctx, "SET_PREAMBLE_CONTEXT_CONTROL", 1), 
+  assign(ret, 1), 
+  cut() .
+
+gfx_ring_validate_set_base(ret, ctx, pkt) :-
+  check_eq_pkt3_payload_len(pkt, 2),
+  check_eq_slice_dw(pkt, 1, "PACKET3_BASE_INDEX(CE_PARTITION_BASE), 0x8000, 0x8000"),
+  update_gfx_ring_status(ctx, "INIT_CE_PARTITION", 1), 
+  assign(ret, 1), 
+  cut() .
+
+// gfx_ring_validate_preamble_cntl(ret, ctx, pkt) :-
+//   check_eq_pkt3_payload_len(pkt, 1),
+//   deref_dw(val, pkt, 1),
+//   bitand(en, val, 0x10000000),
+//   update_gfx_ring_init_state(ctx, "PROGRAM_PREAMBLE_CLEAR_STATE", en), 
+//   assign(ret, 1), 
+//   cut() .
+
+gfx_ring_validate_clear_state(ret, ctx, pkt) :-
+  check_eq_pkt3_payload_len(pkt, 0),
+  check_eq_slice_dw(pkt, 1, "0"),
+  check_clear_state_programmed(ctx),
+  update_gfx_ring_status(ctx, "SET_CONTEXT_STATE", 1), 
+  assign(ret, 1), 
+  cut() .
+
+
+gfx_ring_validate_cond_exec(ret, ctx, pkt) :- check_gfx_ring_initialized(ctx),
+  check_eq_pkt3_payload_len(pkt, 3),
+  deref_dw_64(cond_addr, pkt, 1), 
+  check_valid_slice_read(ctx, cond_addr, 4),
+  assign(ret, 1), 
+  cut() .
+
+gfx_ring_validate_frame_control(ret, ctx, pkt) :- check_gfx_ring_initialized(ctx),
+  check_eq_pkt3_payload_len(pkt, 0),
+  assign(ret, 1), 
+  cut() .
+
+// Only read reg is supported
+gfx_ring_validate_copy_data(ret, ctx, pkt) :- check_gfx_ring_initialized(ctx),
+  check_eq_pkt3_payload_len(pkt, 4),
+  check_eq_slice_dw(pkt, 1, "0x100500"),
+  deref_dw(reg, pkt, 2), 
+  check_eq_slice_dw(pkt, 3, "0"),
+  deref_dw_64(reg_val_offs, pkt, 4), 
+  check_gfx_ring_read_reg(ctx, reg, reg_val_offs),
+  assign(ret, 1), 
+  cut() .
+
+gfx_ring_validate_acquire_mem(ret, ctx, pkt) :- check_gfx_ring_initialized(ctx),
+  check_eq_pkt3_payload_len(pkt, 6),
+  check_eq_slice_dw(pkt, 1, "0, 0xffffffff, 0xffffff, 0, 0, 0xa"),
+  assign(ret, 1), 
+  cut() .
+
+gfx_ring_validate_nop(ret, ctx, pkt) :-
+  assign(ret, 1), 
+  cut() .

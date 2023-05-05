@@ -1,0 +1,31 @@
+{
+    "kernels": [
+        {
+            "name": "ComputePhiMag_GPU",
+            "constraints": [
+                {"type": "argument", "name": "phiR", "offset": 0, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "phiI", "offset": 8, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "phiMag", "offset": 16, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "numK", "offset": 24, "min": 200000, "max": 200000},
+                {"type": "argument", "name": "_", "offset": 32, "min": 0, "max": 0},
+                {"type": "grid_size", "value": [782, 782, 782]},
+                {"type": "block_size", "value": [256, 256, 256]}
+            ]
+        },
+        {
+            "name": "ComputeQ_GPU",
+            "constraints": [
+                {"type": "argument", "name": "numK", "offset": 0, "min": 200000, "max": 200000},
+                {"type": "argument", "name": "kGlobalIndex", "offset": 4, "min": 0, "max": 199680},
+                {"type": "argument", "name": "x", "offset": 8, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "y", "offset": 16, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "z", "offset": 24, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "Qr", "offset": 32, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "Qi", "offset": 40, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "ck", "offset": 48, "min": 0, "max": 1099511627776},
+                {"type": "grid_size", "value": [8192, 8192, 8192]},
+                {"type": "block_size", "value": [256, 256, 256]}
+            ]
+        }
+    ]
+}

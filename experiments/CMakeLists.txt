@@ -1,0 +1,11 @@
+include_directories(lib)
+
+add_subdirectory(lib)
+add_subdirectory(data)
+add_subdirectory(resnet)
+add_subdirectory(ethash)
+add_subdirectory(launchkernel)
+add_subdirectory(memcpy)
+add_subdirectory(ipc)
+add_subdirectory(vram-rpc)
+add_subdirectory(hello-world)

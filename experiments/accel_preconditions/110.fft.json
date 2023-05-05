@@ -1,0 +1,17 @@
+{
+    "kernels": [
+        {
+            "name": "GPU_FFT_Global",
+            "constraints": [
+                {"type": "argument", "name": "logNs", "offset": 0, "min": 0, "max": 16},
+                {"type": "argument", "name": "data0", "offset": 8, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "data1", "offset": 16, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "N", "offset": 24, "min": 256, "max": 256},
+                {"type": "argument", "name": "_", "offset": 32, "min": 0, "max": 0},
+                {"type": "argument", "name": "_", "offset": 40, "min": 0, "max": 0},
+                {"type": "grid_size", "value": [1, 1600, 1]},
+                {"type": "block_size", "value": [128, 1, 128]}
+            ]
+        }
+    ]
+}

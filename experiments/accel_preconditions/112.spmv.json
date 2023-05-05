@@ -1,0 +1,21 @@
+{
+    "kernels": [
+        {
+            "name": "spmv_jds_naive",
+            "constraints": [
+                {"type": "argument", "name": "dst_vector", "offset": 0, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "d_data", "offset": 8, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "d_index", "offset": 16, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "d_perm", "offset": 24, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "x_vec", "offset": 32, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "dim", "offset": 40, "min": 415863, "max": 415863},
+                {"type": "argument", "name": "jds_ptr_int", "offset": 48, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "sh_zcnt_int", "offset": 56, "min": 0, "max": 1099511627776},
+                {"type": "argument", "name": "_", "offset": 64, "min": 0, "max": 0},
+                {"type": "grid_size", "value": [1625, 1, 1]},
+                {"type": "block_size", "value": [256, 1, 1]}
+            ],
+            "marks": [63, 72, 73, 95]
+        }
+    ]
+}
