@@ -1,6 +1,9 @@
 #include "runtime_options.h"
 #include "opencl/hsa/assert.h"
 #include "utils/monad_runner.h"
+#include <absl/status/status.h>
+#include <climits>
+#include <cstdlib>
 
 namespace ocl {
 
@@ -9,32 +12,34 @@ RuntimeOptions::RuntimeOptions() {
     initialized_ = stat.ok();
 }
 
-absl::Status RuntimeOptions::ParseEnv(bool *target,
-                                      const std::string &env_var) {
-    auto ret = getenv(env_var.c_str());
+static absl::Status ParseInt(long *target, const char *env_var) {
+    auto ret = getenv(env_var);
     if (!ret) {
-        *target = false;
+        *target = 0;
         return absl::OkStatus();
     }
-    std::string value = ret;
-    std::string one = "1";
-    std::string zero = "0";
-    if (value == zero) {
-        *target = false;
-    } else if (value == one) {
-        *target = true;
-    } else {
-        return absl::InvalidArgumentError(env_var +
-                                          " is not properly set: " + value);
-    }
+    *target = strtol(ret, nullptr, 10);
     return absl::OkStatus();
 }
 
-absl::Status RuntimeOptions::ParseEnvString(std::string *target,
-                                            const std::string &env_var) {
-    auto ret = getenv(env_var.c_str());
+static absl::Status ParseBool(bool *target, const char *env_var) {
+    long v = 0;
+    auto stat = ParseInt(&v, env_var);
+    if (!stat.ok()) {
+        return stat;
+    } else if (v == LONG_MAX || v == LONG_MIN) {
+        return absl::InvalidArgumentError(std::string(env_var) +
+                                          " is not properly set");
+    }
+    *target = v;
+    return absl::OkStatus();
+}
+
+static absl::Status ParseEnvString(std::string *target, const char *env_var) {
+    auto ret = getenv(env_var);
     if (!ret) {
-        HSA_ASSERT(0 && "Must set env");
+        return absl::InvalidArgumentError(std::string(env_var) +
+                                          " must be a string");
     }
     *target = ret;
     return absl::OkStatus();
@@ -43,10 +48,12 @@ absl::Status RuntimeOptions::ParseEnvString(std::string *target,
 absl::Status RuntimeOptions::Initialize() {
     gpumpc::MonadRunner<absl::Status> runner(absl::OkStatus());
     runner
-        .Run(
-            [&]() { return ParseEnv(&secure_memcpy_, "GPUMPC_SECURE_MEMCPY"); })
-        .Run(
-            [&]() { return ParseEnv(&strict_layout_, "GPUMPC_STRICT_LAYOUT"); })
+        .Run([&]() {
+            return ParseBool(&secure_memcpy_, "GPUMPC_SECURE_MEMCPY");
+        })
+        .Run([&]() {
+            return ParseBool(&strict_layout_, "GPUMPC_STRICT_LAYOUT");
+        })
         .Run([&]() {
             if (secure_memcpy_) {
                 return ParseEnvString(&resource_dir_, "GPUMPC_RESOURCE_DIR");
@@ -54,7 +61,15 @@ absl::Status RuntimeOptions::Initialize() {
                 return absl::OkStatus();
             }
         })
-        .Run([&]() { return ParseEnv(&enclave_, "GPUMPC_ENCLAVE"); })
+        .Run([&]() {
+            long variant = 0;
+            auto stat = ParseInt(&variant, "GPUMPC_ENCLAVE");
+            if (!stat.ok()) {
+                return stat;
+            }
+            enclave_ = (EnclaveVariant)variant;
+            return absl::OkStatus();
+        })
         .Run([&]() {
             if (enclave_) {
                 return ParseEnvString(&enclave_shm_, "GPUMPC_ENCLAVE_SHM");
@@ -63,9 +78,9 @@ absl::Status RuntimeOptions::Initialize() {
             }
         })
         .Run([&]() {
-            if (enclave_) {
-                return ParseEnvString(&enclave_socket_,
-                                      "GPUMPC_ENCLAVE_SOCKET");
+            if (enclave_ == kEnclaveFull) {
+                return ParseEnvString(&agent_physical_memory_,
+                                      "GPUMPC_ENCLAVE_AGENT_MEM");
             } else {
                 return absl::OkStatus();
             }

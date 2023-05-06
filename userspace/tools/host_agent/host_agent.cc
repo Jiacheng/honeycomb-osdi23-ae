@@ -4,15 +4,28 @@
 #include "opencl/hsa/kfd/kfd_memory.h"
 #include "opencl/hsa/queue.h"
 #include "opencl/hsa/utils.h"
+#include "utils/align.h"
 
+#include <absl/status/status.h>
 #include <absl/types/span.h>
+#include <algorithm>
 #include <atomic>
+#include <fcntl.h>
 #include <memory>
 
 #include <hsa/kfd_ioctl.h>
 #include <sched.h>
 
 namespace ocl::hsa::enclave {
+
+enum { kPageSize = 4096 };
+struct PageMapEntry {
+    uint64_t pfn : 55;
+    uint64_t reserved : 8;
+    uint8_t present : 1;
+};
+
+static_assert(sizeof(PageMapEntry) == 8, "");
 
 using namespace ocl::hsa::enclave::idl;
 
@@ -28,7 +41,19 @@ template <class T> static inline absl::Span<const char> AsSpan(const T &v) {
 
 HostRequestHandler::HostRequestHandler(Device *dev, TransmitBuffer *tx,
                                        TransmitBuffer *rx)
-    : dev_(dev), tx_(tx), rx_(rx) {}
+    : dev_(dev), tx_(tx), rx_(rx), page_map_fd_(-1) {}
+
+absl::Status HostRequestHandler::Initialize() {
+    rx_->GetRptr()->store(0);
+    rx_->GetWptr()->store(0);
+    tx_->GetRptr()->store(0);
+    tx_->GetWptr()->store(0);
+    page_map_fd_ = open("/proc/self/pagemap", O_RDONLY);
+    if (page_map_fd_ < 0) {
+        return absl::InvalidArgumentError("Cannot read page map");
+    }
+    return absl::OkStatus();
+}
 
 void HostRequestHandler::ProcessRequests() {
     auto buf = rx_->GetBuffer();
@@ -41,20 +66,20 @@ void HostRequestHandler::ProcessRequests() {
         wptr = rx_->GetWptr()->load();
     }
 
-    char tmp[TransmitBuffer::kMaxRPCSize];
+    std::vector<char> tmp(TransmitBuffer::kMaxRPCSize);
     while (rptr != wptr) {
         RPCType ty;
         size_t payload_size;
         auto pkt =
             rx_->ReadPacketAt(rptr, &ty, &payload_size, absl::MakeSpan(tmp));
         HSA_ASSERT(pkt);
-        Dispatch(ty, pkt);
+        Dispatch(ty, pkt, payload_size);
         rptr = (rptr + sizeof(RPCType) + payload_size) & (size - 1);
     }
     rx_->GetRptr()->store(rptr);
 }
 
-void HostRequestHandler::Dispatch(RPCType ty, const char *req) {
+void HostRequestHandler::Dispatch(RPCType ty, char *req, size_t payload_size) {
     switch (ty) {
     case kRPCCreateQueueRequest:
         OnCreateQueue(reinterpret_cast<const CreateQueueRequest *>(req));
@@ -162,6 +187,8 @@ void HostRequestHandler::OnUpdateDoorbell(
 
 void HostRequestHandler::OnAllocGPUMemory(
     const idl::AllocateGPUMemoryRequest *req) {
+    HSA_ASSERT(!req->request_pfn ||
+               (req->flag & KFD_IOC_ALLOC_MEM_FLAGS_USERPTR));
     std::unique_ptr<KFDMemory> m(
         new KFDMemory(reinterpret_cast<void *>(req->va_addr), req->size));
     auto stat =
@@ -172,7 +199,24 @@ void HostRequestHandler::OnAllocGPUMemory(
     mem_.insert(std::make_pair<unsigned long, std::unique_ptr<KFDMemory>>(
         std::move(handle), std::move(m)));
 
-    PushResponse(RPCType::kRPCAllocateGPUMemoryResponse, AsSpan(handle));
+    std::vector<char> response;
+    size_t num_pages = req->request_pfn
+                           ? gpumpc::AlignUp(req->size, kPageSize) / kPageSize
+                           : 0;
+
+    response.resize(sizeof(AllocateGPUMemoryResponseHeader) +
+                    num_pages * sizeof(uint64_t));
+
+    auto header =
+        reinterpret_cast<AllocateGPUMemoryResponseHeader *>(response.data());
+    header->handle = handle;
+    header->num_pages = num_pages;
+    uintptr_t *pfn = reinterpret_cast<uintptr_t *>(header + 1);
+    for (size_t i = 0; i < num_pages; ++i) {
+        pfn[i] = GetPhysicalPageFrameNumber(req->va_addr + i * kPageSize);
+    }
+
+    PushResponse(RPCType::kRPCAllocateGPUMemoryResponse, response);
 }
 
 void HostRequestHandler::OnMapGPUMemory(const idl::MapGPUMemoryRequest *req) {
@@ -233,7 +277,21 @@ void HostRequestHandler::OnDestroyEvent(const idl::DestroyEventRequest *req) {
 
 void HostRequestHandler::PushResponse(idl::RPCType type,
                                       absl::Span<const char> payload) {
-    tx_->Push(type, payload);
+    unsigned size = (unsigned)payload.size();
+    tx_->Push(type | (size << 8), payload);
+}
+
+uintptr_t HostRequestHandler::GetPhysicalPageFrameNumber(uintptr_t va_addr) {
+    uintptr_t vpfn = reinterpret_cast<uintptr_t>(va_addr) / kPageSize;
+    PageMapEntry entry;
+    int ret = pread64(page_map_fd_, &entry, sizeof(entry),
+                      vpfn * sizeof(PageMapEntry));
+    if (ret != sizeof(entry)) {
+        return 0;
+    }
+    uintptr_t pfn = entry.pfn;
+    auto physical_addr = pfn;
+    return entry.present ? physical_addr : 0;
 }
 
 } // namespace ocl::hsa::enclave

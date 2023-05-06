@@ -182,6 +182,12 @@ hipError_t HsaMemoryManager::hipMemcpyDtoH(void *dst, gpu_addr_t src,
 
 hipError_t HsaMemoryManager::hipMemcpyHtoD(gpu_addr_t dst, const void *src,
                                            size_t size) {
+    // potentially barrier if there are dispatching kernels
+    hipError_t err = parent_->GetComputeContext()->ReleaseDeviceMemoryFence();
+    if (err != hipSuccess) {
+        return err;
+    }
+
     size_t remaining = size;
     size_t offset = 0;
     while (remaining > 0) {

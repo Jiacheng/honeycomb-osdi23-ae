@@ -4,6 +4,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <vector>
 
 namespace ocl::hsa::enclave::idl {
 
@@ -28,7 +29,12 @@ enum RPCType {
     kRPCWaitEventResponse,
     kRPCDestroyEventRequest,
     kRPCDestroyEventResponse,
+    kRPCEnqueueAQLPacketsRequest,
+    kRPCEnqueueAQLPacketsResponse,
+    kRPCTagEnd,
 };
+
+static_assert(RPCType::kRPCTagEnd < 256, "");
 
 enum QueueType {
     kQueueTypeSDMA = 1,
@@ -58,6 +64,7 @@ struct UpdateDoorbellRequest {
 };
 
 struct AllocateGPUMemoryRequest {
+    unsigned request_pfn;
     unsigned flag;
     uintptr_t va_addr;
     size_t size;
@@ -80,6 +87,16 @@ struct WaitEventRequest {
     unsigned timeout;
 };
 
+struct AllocateGPUMemoryResponseHeader {
+    unsigned long handle;
+    unsigned num_pages;
+};
+
+struct AllocateGPUMemoryResponse {
+    unsigned long handle;
+    std::vector<uintptr_t> pfns;
+};
+
 typedef unsigned DestroyEventRequest;
 
 typedef unsigned long DestroyQueueRequest;
@@ -98,55 +115,15 @@ typedef NullResponse UpdateDoorbellResponse;
 typedef NullResponse MapGPUMemoryResponse;
 typedef NullResponse UnmapGPUMemoryResponse;
 typedef NullResponse DeallocateGPUMemoryResponse;
-typedef unsigned long AllocateGPUMemoryResponse;
 typedef NullResponse WaitEventResponse;
 typedef NullResponse DestroyEventResponse;
+typedef unsigned long EnqueueAQLPacketsResponse;
 
-static inline size_t GetPayloadSize(RPCType type) {
-    switch (type) {
-    case kRPCCreateQueueRequest:
-        return sizeof(CreateQueueRequest);
-    case kRPCCreateQueueResponse:
-        return sizeof(CreateQueueResponse);
-    case kRPCDestroyQueueRequest:
-        return sizeof(DestroyQueueRequest);
-    case kRPCDestroyQueueResponse:
-        return sizeof(DestroyQueueResponse);
-    case kRPCUpdateDoorbellRequest:
-        return sizeof(UpdateDoorbellRequest);
-    case kRPCUpdateDoorbellResponse:
-        return sizeof(UpdateDoorbellResponse);
-    case kRPCAllocateGPUMemoryRequest:
-        return sizeof(AllocateGPUMemoryRequest);
-    case kRPCAllocateGPUMemoryResponse:
-        return sizeof(AllocateGPUMemoryResponse);
-    case kRPCMapGPUMemoryRequest:
-        return sizeof(MapGPUMemoryRequest);
-    case kRPCMapGPUMemoryResponse:
-        return sizeof(MapGPUMemoryResponse);
-    case kRPCUnmapGPUMemoryRequest:
-        return sizeof(UnmapGPUMemoryRequest);
-    case kRPCUnmapGPUMemoryResponse:
-        return sizeof(UnmapGPUMemoryResponse);
-    case kRPCDeallocateGPUMemoryRequest:
-        return sizeof(DeallocateGPUMemoryRequest);
-    case kRPCDeallocateGPUMemoryResponse:
-        return sizeof(DeallocateGPUMemoryResponse);
-    case kRPCCreateEventRequest:
-        return sizeof(CreateEventRequest);
-    case kRPCCreateEventResponse:
-        return sizeof(CreateEventResponse);
-    case kRPCWaitEventRequest:
-        return sizeof(WaitEventRequest);
-    case kRPCWaitEventResponse:
-        return sizeof(WaitEventResponse);
-    case kRPCDestroyEventRequest:
-        return sizeof(DestroyEventRequest);
-    case kRPCDestroyEventResponse:
-        return sizeof(DestroyEventResponse);
-    }
-    HSA_ASSERT(0 && "Unreachable");
-    return 0;
+static inline size_t GetPayloadSize(unsigned type_tag) {
+    RPCType type = (RPCType)(type_tag & 0xff);
+    HSA_ASSERT(type < kRPCTagEnd && "Invalid RPC type");
+    unsigned size = type_tag >> 8;
+    return size;
 }
 
 struct HostConfiguration {
@@ -175,11 +152,11 @@ struct ConfigurationSpaceLayout {
     };
     enum {
         kConfigurationSpaceSize = 2 * 1024 * 1024,
-        kTransmitBufferSize = 8 * 1024,
+        kTransmitBufferSize = 256 * 1024,
         kRXBufferWatermarkOffset = 4096,
         kTXBufferWatermarkOffset = 4096 + sizeof(Watermark),
         kRXBufferOffset = 8192,
-        kTXBufferOffset = 16384,
+        kTXBufferOffset = kRXBufferOffset + kTransmitBufferSize,
     };
 };
 

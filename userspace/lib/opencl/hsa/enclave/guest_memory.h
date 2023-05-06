@@ -21,8 +21,15 @@ class EnclaveGuestMemory : public Memory {
 
     explicit EnclaveGuestMemory(EnclaveGuestDevice *parent, void *buf,
                                 size_t size);
-    absl::Status AllocGPUMemory(uint32_t gpu_id, uint32_t flag,
-                                uint64_t mmap_offset);
+    //
+    // map_remote_pfn requests the dom0 VM to return the pfn of the pages
+    // it is a hack to allow the enclave application to gain access of the
+    // GTT buffer of the dom0 VM by directly mapping the pages of the dom0 VM.
+    //
+    // It should be done in the reverse direction -- it requires making HMM work
+    // with I/O memory or reserved memory.
+    absl::Status AllocGPUMemory(bool map_remote_pages, uint32_t gpu_id,
+                                uint32_t flag, uint64_t mmap_offset);
     absl::Status MapGPUMemory();
     void SetResourceScopeFlag(ResourceScope scope) { scope_ = scope; }
     virtual absl::Status Destroy() override;

@@ -2,6 +2,7 @@
 #include "opencl/hsa/assert.h"
 #include "opencl/hsa/enclave/idl.h"
 #include "opencl/hsa/platform.h"
+#include "opencl/hsa/runtime_options.h"
 #include <absl/status/status.h>
 #include <fcntl.h>
 #include <sys/mman.h>
@@ -53,9 +54,17 @@ absl::Status HostEnvironment::Open(const std::string &shm_fn,
 }
 
 absl::Status HostEnvironment::PrepareMapping() {
-    gtt_buf_ = mmap(reinterpret_cast<void *>(options_.gtt_vaddr),
-                    options_.gtt_size, PROT_READ | PROT_WRITE,
-                    MAP_SHARED | MAP_FIXED, fd_, kConfigurationSpaceSize);
+    if (options_.map_remote_pfn) {
+        gtt_buf_ =
+            mmap(reinterpret_cast<void *>(options_.gtt_vaddr),
+                 options_.gtt_size, PROT_READ | PROT_WRITE,
+                 MAP_SHARED | MAP_FIXED | MAP_ANONYMOUS | MAP_NORESERVE, -1, 0);
+
+    } else {
+        gtt_buf_ = mmap(reinterpret_cast<void *>(options_.gtt_vaddr),
+                        options_.gtt_size, PROT_READ | PROT_WRITE,
+                        MAP_SHARED | MAP_FIXED, fd_, kConfigurationSpaceSize);
+    }
     if (gtt_buf_ == MAP_FAILED) {
         return absl::InvalidArgumentError(
             "Cannot reserve the GTT memory space");

@@ -14,6 +14,7 @@ class HostEnvironment {
         size_t gtt_size;
         uintptr_t vram_vaddr;
         size_t vram_size;
+        bool map_remote_pfn;
     };
     HostEnvironment();
     absl::Status Open(const std::string &shm_fn, const Options &options,

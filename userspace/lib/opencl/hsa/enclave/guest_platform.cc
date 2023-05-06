@@ -1,6 +1,7 @@
 #include "guest_platform.h"
 #include "guest_rpc_client.h"
 #include "idl.h"
+#include "opencl/hsa/runtime_options.h"
 #include "transmit_buffer.h"
 
 #include <absl/status/status.h>
@@ -23,7 +24,8 @@ NewEnclaveGuestMemoryManager(Device *dev, absl::Span<char> gtt_space,
 std::unique_ptr<Event> NewEnclaveGuestEvent(EnclaveGuestDevice *dev, int type,
                                             uint64_t event_page_handle);
 
-EnclaveGuestPlatform::EnclaveGuestPlatform() : shm_fd_(-1), sock_fd_(-1) {}
+EnclaveGuestPlatform::EnclaveGuestPlatform()
+    : shm_fd_(-1), sock_fd_(-1), agent_physical_memory_fd_(-1) {}
 
 Platform &EnclaveGuestPlatform::Instance() {
     static EnclaveGuestPlatform inst;
@@ -64,18 +66,30 @@ absl::Status EnclaveGuestPlatform::PrepareDevices() {
 
     shm_fd_ = shm_fd;
     devices_.emplace_back(dev.release());
+    auto opt = GetRuntimeOptions();
+    if (opt->MapRemotePhysicalPage()) {
+        agent_physical_memory_fd_ =
+            open(opt->GetAgentPhysicalMemoryPath().c_str(), O_RDWR);
+        if (agent_physical_memory_fd_ < 0) {
+            return absl::InvalidArgumentError(
+                "Cannot open the agent physical memory");
+        }
+    }
+
     return absl::OkStatus();
 }
 
 absl::Status EnclaveGuestPlatform::CreateDevice(int shm_fd, char *base,
                                                 idl::HostConfiguration *config,
                                                 std::unique_ptr<Device> *ret) {
-    auto gtt_vaddr =
-        mmap(reinterpret_cast<void *>(config->gtt_vaddr), config->gtt_size,
-             PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, shm_fd,
-             ConfigurationSpaceLayout::kConfigurationSpaceSize);
-    if (gtt_vaddr == MAP_FAILED) {
-        return absl::InvalidArgumentError("Cannot map in the GTT memory");
+    if (!GetRuntimeOptions()->MapRemotePhysicalPage()) {
+        auto gtt_vaddr =
+            mmap(reinterpret_cast<void *>(config->gtt_vaddr), config->gtt_size,
+                 PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, shm_fd,
+                 ConfigurationSpaceLayout::kConfigurationSpaceSize);
+        if (gtt_vaddr == MAP_FAILED) {
+            return absl::InvalidArgumentError("Cannot map in the GTT memory");
+        }
     }
 
     auto watermark_rx =
@@ -111,8 +125,8 @@ absl::Status EnclaveGuestPlatform::CreateDevice(int shm_fd, char *base,
 
 absl::Status EnclaveGuestPlatform::NotifyHostAgent() {
     // TODO
-    auto ret = read(shm_fd_, NULL, 0);
-    (void)ret;
+    // auto ret = read(shm_fd_, NULL, 0);
+    // (void)ret;
     return absl::OkStatus();
 }
 

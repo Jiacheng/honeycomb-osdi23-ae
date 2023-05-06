@@ -87,6 +87,7 @@ std::unique_ptr<Memory> KFDMemoryManager::NewEventPage() {
     };
     static const unsigned kEventPageIOCFlag = kIOCFlagsBase |
                                               KFD_IOC_ALLOC_MEM_FLAGS_UNCACHED |
+                                              KFD_IOC_ALLOC_MEM_FLAGS_COHERENT |
                                               KFD_IOC_ALLOC_MEM_FLAGS_GTT;
 
     auto ret = NewSystemMemory(kEventPageSize, Memory::kGPUHugePageSize, 0,

@@ -1,7 +1,7 @@
 #include "cl_program.h"
+#include "absl/strings/escaping.h"
 #include "cl_context.h"
 #include "crypto/sha3.h"
-#include "absl/strings/escaping.h"
 #include "utils/filesystem.h"
 
 #include <filesystem>
@@ -27,8 +27,12 @@ cl_program Program::clCreateProgramWithSource(cl_context context, cl_uint count,
         *errcode_ret = CL_INVALID_VALUE;
     }
 
+    const char *cache_dir = std::getenv("CL_CACHE_DIR");
+    if (!cache_dir) {
+        return nullptr;
+    }
+
     auto binary_home = fs::path(std::getenv("CL_CACHE_DIR"));
-    char output[32];
 
     // concatence input strings into one
     std::string program_string;
@@ -38,31 +42,29 @@ cl_program Program::clCreateProgramWithSource(cl_context context, cl_uint count,
         } else {
             program_string.append(std::string(strings[i]));
         }
-    } 
-    
+    }
+
+    char output[32];
     SHA3_256(reinterpret_cast<unsigned char *>(output),
              reinterpret_cast<unsigned char *>(program_string.data()),
              program_string.length());
-    std::string hex_hash_value = absl::BytesToHexString(absl::string_view(
-        const_cast<const char *>(output), 32));
+    std::string hex_hash_value =
+        absl::BytesToHexString(absl::string_view(output, 32));
     auto file_name = fs::path(std::string("cl-") + hex_hash_value + ".bin");
     auto binary_path = binary_home / file_name;
-    
+
     absl::Status stat;
     auto binary = gpumpc::ReadAll(binary_path, &stat);
-    if (stat.ok()) {
+    if (stat.ok() && !binary.empty()) {
         size_t binary_size = binary.size();
         auto ctx = static_cast<Context *>(context);
         cl_device_id device = ctx->GetDevices()[0];
-        auto binary_data_pointer = reinterpret_cast<const unsigned char *>(binary.data());
+        auto binary_data_pointer =
+            reinterpret_cast<const unsigned char *>(binary.data());
 
-        return Program::clCreateProgramWithBinary(context,
-                                                    1,
-                                                    &device,
-                                                    &binary_size,
-                                                    &binary_data_pointer,
-                                                    NULL,
-                                                    errcode_ret);
+        return Program::clCreateProgramWithBinary(
+            context, 1, &device, &binary_size, &binary_data_pointer, NULL,
+            errcode_ret);
     }
     return nullptr;
 }

@@ -9,9 +9,12 @@ DEFINE_string(shm_file, "", "The filename of the shared memory");
 DEFINE_uint64(gtt_size, 64, "The size of the reserved GTT memory in MB");
 DEFINE_uint64(gtt_vaddr, 1ull << 30,
               "The virtual address of the GTT address space");
-DEFINE_uint64(vram_size, 64, "The size of the reserved VRAM memory in MB");
+DEFINE_uint64(vram_size, 1024, "The size of the reserved VRAM memory in MB");
 DEFINE_uint64(vram_vaddr, 8ull << 30,
               "The virtual address of the VRAM address space");
+DEFINE_int32(
+    map_remote_pfn, 0,
+    "allows to map physical pages of the host into its own address space");
 
 using namespace ocl::hsa;
 using namespace ocl::hsa::enclave;
@@ -34,6 +37,7 @@ int main(int argc, char *argv[]) {
         .gtt_size = FLAGS_gtt_size << 20,
         .vram_vaddr = FLAGS_vram_vaddr,
         .vram_size = FLAGS_vram_size << 20,
+        .map_remote_pfn = !!FLAGS_map_remote_pfn,
     };
     HostEnvironment env;
     stat = env.Open(FLAGS_shm_file, options, dev);
@@ -63,6 +67,13 @@ int main(int argc, char *argv[]) {
         reinterpret_cast<std::atomic_size_t *>(&rx_watermark->wptr));
 
     HostRequestHandler handler(dev, &tx, &rx);
+    stat = handler.Initialize();
+    if (!stat.ok()) {
+        std::cerr << "Failed to initialize the request handler: "
+                  << stat.ToString() << "\n";
+        return -1;
+    }
+
     while (true) {
         handler.ProcessRequests();
     }

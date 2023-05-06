@@ -5,6 +5,7 @@
 #include "opencl/hsa/memory_manager.h"
 #include "opencl/hsa/platform.h"
 
+#include "opencl/hsa/runtime_options.h"
 #include "utils/align.h"
 
 #include <hsa/kfd_ioctl.h>
@@ -67,16 +68,19 @@ EnclaveGuestMemoryManager::NewMemoryImpl(size_t size, size_t alignment,
     void *buf = reinterpret_cast<void *>(alloc->AllocateAlign(size, alignment));
     HSA_ASSERT(buf);
 
+    auto ret = std::make_unique<EnclaveGuestMemory>(
+        static_cast<EnclaveGuestDevice *>(dev_), buf, size);
+    bool map_remote_pages = GetRuntimeOptions()->MapRemotePhysicalPage() && space == kGTT;
+    auto stat = ret->AllocGPUMemory(map_remote_pages, gpu_id, ioc_flags,
+                                    (uintptr_t)buf);
+    if (!stat.ok()) {
+        return nullptr;
+    }
+
     // The caller might just allocate from the address space when it does not
     // pass in the kMapIntoHostAddressSpace flag. Don't care for now.
     if (mmap_flag & kClearHost) {
         memset(buf, 0, size);
-    }
-    auto ret = std::make_unique<EnclaveGuestMemory>(
-        static_cast<EnclaveGuestDevice *>(dev_), buf, size);
-    auto stat = ret->AllocGPUMemory(gpu_id, ioc_flags, (uintptr_t)buf);
-    if (!stat.ok()) {
-        return nullptr;
     }
 
     stat = ret->MapGPUMemory();
@@ -89,7 +93,7 @@ EnclaveGuestMemoryManager::NewMemoryImpl(size_t size, size_t alignment,
 std::unique_ptr<Memory>
 EnclaveGuestMemoryManager::NewDeviceMemory(size_t size) {
     auto ioc_flags = kIOCFlagsBase | KFD_IOC_ALLOC_MEM_FLAGS_VRAM;
-    return NewMemoryImpl(size, Memory::kGPUHugePageSize, AddressSpace::kGTT, 0,
+    return NewMemoryImpl(size, Memory::kGPUHugePageSize, AddressSpace::kVRAM, 0,
                          ioc_flags);
 }
 

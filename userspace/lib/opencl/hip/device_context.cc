@@ -20,7 +20,8 @@ absl::Status DeviceContext::Initialize() {
     if (!opt) {
         return absl::InvalidArgumentError("can not get runtime options");
     }
-    if (opt->IsEnclave()) {
+    const auto enclave_variant = opt->GetEnclaveVariant();
+    if (enclave_variant != RuntimeOptions::kEnclaveNone) {
         hsa::Platform::ChooseVariant(hsa::Platform::kPlatformEnclaveGuest);
     }
     auto &plat = hsa::Platform::Instance();
@@ -28,7 +29,7 @@ absl::Status DeviceContext::Initialize() {
     std::unique_ptr<HipComputeContextBase> compute;
     runner
         .Run([&]() {
-            if (opt->IsEnclave()) {
+            if (enclave_variant != RuntimeOptions::kEnclaveNone) {
                 auto &enclave_plat =
                     static_cast<hsa::enclave::EnclaveGuestPlatform &>(plat);
                 hsa::enclave::EnclaveGuestPlatform::Options options;

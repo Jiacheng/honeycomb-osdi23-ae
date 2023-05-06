@@ -1,5 +1,6 @@
 #include "transmit_buffer.h"
 #include "opencl/hsa/assert.h"
+#include "opencl/hsa/enclave/idl.h"
 #include <cstring>
 #include <utility>
 
@@ -11,17 +12,17 @@ TransmitBuffer::TransmitBuffer(absl::Span<char> buf, std::atomic_size_t *rptr,
                                std::atomic_size_t *wptr)
     : buf_(buf), rptr_(rptr), wptr_(wptr) {}
 
-const char *TransmitBuffer::ReadPacketAt(size_t rptr, idl::RPCType *ty,
-                                         size_t *payload_size,
-                                         absl::Span<char> tmp) {
+char *TransmitBuffer::ReadPacketAt(size_t rptr, idl::RPCType *ty,
+                                   size_t *payload_size, absl::Span<char> tmp) {
     if (tmp.size() < kMaxRPCSize) {
         return nullptr;
     }
     auto base = buf_.data();
     auto size = buf_.size();
 
-    *ty = *reinterpret_cast<const RPCType *>(base + rptr);
-    *payload_size = idl::GetPayloadSize(*ty);
+    unsigned type_tag = *reinterpret_cast<unsigned *>(base + rptr);
+    *ty = (idl::RPCType)(type_tag & 0xff);
+    *payload_size = idl::GetPayloadSize(type_tag);
     auto req = rptr + sizeof(RPCType);
     if (rptr + sizeof(RPCType) + *payload_size > size) {
         HSA_ASSERT(rptr + sizeof(RPCType) <= size);
@@ -34,7 +35,7 @@ const char *TransmitBuffer::ReadPacketAt(size_t rptr, idl::RPCType *ty,
     }
 }
 
-void TransmitBuffer::Push(idl::RPCType type, absl::Span<const char> payload) {
+void TransmitBuffer::Push(unsigned type_tag, absl::Span<const char> payload) {
     auto rptr = rptr_->load();
     auto wptr = wptr_->load();
     auto base = buf_.data();
@@ -45,18 +46,18 @@ void TransmitBuffer::Push(idl::RPCType type, absl::Span<const char> payload) {
         rptr = rptr_->load();
     }
 
-    if (wptr + sizeof(type) + payload.size() <= size) {
-        memcpy(base + wptr, &type, sizeof(type));
-        memcpy(base + wptr + sizeof(type), payload.data(), payload.size());
+    if (wptr + sizeof(type_tag) + payload.size() <= size) {
+        memcpy(base + wptr, &type_tag, sizeof(type_tag));
+        memcpy(base + wptr + sizeof(type_tag), payload.data(), payload.size());
     } else {
-        HSA_ASSERT(wptr + sizeof(type) <= size);
-        memcpy(base + wptr, &type, sizeof(type));
-        size_t p = size - wptr - sizeof(type);
-        memcpy(base + wptr + sizeof(type), payload.data(), p);
+        HSA_ASSERT(wptr + sizeof(type_tag) <= size);
+        memcpy(base + wptr, &type_tag, sizeof(type_tag));
+        size_t p = size - wptr - sizeof(type_tag);
+        memcpy(base + wptr + sizeof(type_tag), payload.data(), p);
         memcpy(base, payload.data() + p, payload.size() - p);
     }
 
-    wptr = (wptr + sizeof(type) + payload.size()) & (size - 1);
+    wptr = (wptr + sizeof(type_tag) + payload.size()) & (size - 1);
     wptr_->store(wptr);
 }
 

@@ -38,6 +38,7 @@ class EnclaveGuestPlatform : public Platform {
     virtual absl::Status Close() override;
     virtual std::unique_ptr<Event>
     NewEvent(int type, uint64_t event_page_handle) override;
+    int GetAgentPhysicalMemoryFD() const { return agent_physical_memory_fd_; }
 
   protected:
     EnclaveGuestPlatform();
@@ -52,6 +53,7 @@ class EnclaveGuestPlatform : public Platform {
     idl::HostConfiguration config_;
     int shm_fd_;
     int sock_fd_;
+    int agent_physical_memory_fd_;
     void *conf_space_;
     std::vector<Device *> devices_;
 };

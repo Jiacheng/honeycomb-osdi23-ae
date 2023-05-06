@@ -1,7 +1,7 @@
 #include "cl_commandqueue.h"
 #include "api.h"
-#include "cl_kernel.h"
 #include "cl_event.h"
+#include "cl_kernel.h"
 
 #include "opencl/hsa/runtime_options.h"
 
@@ -50,6 +50,7 @@ cl_int CommandQueue::clFlush(cl_command_queue command_queue) {
 cl_int CommandQueue::clFinish(cl_command_queue command_queue) {
     auto self = static_cast<CommandQueue *>(command_queue);
     std::lock_guard<std::recursive_mutex> lk(self->mutex_);
+    self->clFinish();
     return CL_SUCCESS;
 }
 
@@ -196,6 +197,12 @@ cl_int CommandQueue::EnqueueNDRangeKernel(Kernel *kernel, cl_uint work_dim,
         (2 < work_dim && local_work_size) ? local_work_size[2] : 1,
         kernel->GetArgsBuffer(), kernel->GetArgsBufferSize());
     return error == hipSuccess ? CL_SUCCESS : CL_INVALID_VALUE;
+}
+
+cl_int CommandQueue::clFinish() {
+    auto hip = ctx_->GetCtx();
+    auto stat = hip->GetComputeContext()->ReleaseDeviceMemoryFence();
+    return stat == hipSuccess ? CL_SUCCESS : CL_INVALID_VALUE;
 }
 
 } // namespace crater::opencl

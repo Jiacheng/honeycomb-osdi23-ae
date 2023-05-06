@@ -4,7 +4,7 @@ if [ -z "$GPUMPC_RESOURCE_DIR" ]; then
     exit 1
 fi
 
-unset LD_PRELOAD
+unset LD_LIBRARY_PATH
 
 warmup=5
 loop=100
@@ -14,6 +14,6 @@ $GPUMPC_RESOURCE_DIR/memcpy/memcpy_benchmark -warmup $warmup -loop $loop
 #new line
 echo
 
-echo "Running benchmark for hip-hack..."
-LD_PRELOAD=$GPUMPC_RESOURCE_DIR/../userspace/lib/opencl/usm/libhip-hack.so \
+echo "Running benchmark for our runtime..."
+LD_LIBRARY_PATH=$GPUMPC_RESOURCE_DIR/../userspace/lib/opencl/hip GPUMPC_SECURE_MEMCPY=1 \
     $GPUMPC_RESOURCE_DIR/memcpy/memcpy_benchmark -warmup $warmup -loop $loop

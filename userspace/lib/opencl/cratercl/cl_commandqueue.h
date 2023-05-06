@@ -67,6 +67,7 @@ class CommandQueue : public CLObject<_cl_command_queue>,
                                 const size_t *global_work_size,
                                 const size_t *local_work_size);
 
+    cl_int clFinish();
     Context *ctx_;
     // The Command Queue APIs are supposed to be thread-safe
     std::recursive_mutex mutex_;
