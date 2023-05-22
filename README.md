@@ -97,10 +97,10 @@ $HONEYCOMB_REPO_DIR/experiments/memcpy/run.sh
 
 ## Figure 7: Overall performance of SPEC ACCEL and ResNet18 on Honeycomb
 
-The script `/data/honeycomb-ae/opt/honeycomb/bin/figure7-data.sh` executes each benchmark and records the wall clock time to finish each of them. You can collect the data point by running:
+The script `/data/honeycomb-ae/opt/honeycomb/evaluation/performance/figure7-data.sh` executes each benchmark and records the wall clock time to finish each of them. You can collect the data point by running:
 
 ```shell
-$ cd /data/honeycomb-ae/opt/honeycomb/bin
+$ cd /data/honeycomb-ae/opt/honeycomb/evaluation/performance
 $ ./figure7-data.sh --series <SERIES>
 ```
 
@@ -108,24 +108,47 @@ Where the series can be `baseline`, `driver`, `sm`, `sm+mem`, or `full`, each of
 
 Note that the data of both the `baseline` and `drivers` series should be collected on the host machine, while the other three are collected running inside the application VM.
 
+To collect data in the host, please follow the steps below to setup the environment
+
+1. Since there is only one GPU and there are some hard encoded paths, two users can not evaluate the artifact at the same time. Please check if others are doing the evaluation using `who` and `ps aux | grep qemu`. If there is none, you could safely reboot the machine using `sudo bash /data/honeycomb-ae/opt/honeycomb/bin/reboot.sh` to get a clean environment. This is due to the limitation of the vfio-pci driver where GPU could not be bound back to the host again and a hard reboot is needed.
+2. Run `sudo bash /data/honeycomb-ae/opt/honeycomb/bin/enable-gpu-host.sh` to make host work
+3. Start the benchmark and collect the data in application VM. For example, run `figure7-data.sh --series driver`.
+
 To collect data inside the application VM, please follow the steps below to set up the environment:
 
-1. Run `enable-gpu-passthrough.sh` so that the GPU can be bound to the dom0 VM. It only needs to be done when changing the bounding target of the GPUs.
-2. Spawn the dom0 VM by running `/data/honeycomb-ae/opt/honeycomb/dom0-vm/run-dom0-vm.sh`.
-3. SSH into the dom0 via `ssh -p 10022 root@127.0.0.1`. The password is `honeycomb`.
-4. Start the userspace host agent in dom0:
+1. Run `sudo bash /data/honeycomb-ae/opt/honeycomb/bin/enable-gpu-passthrough.sh` so that the GPU can be bound to the dom0 VM. This should only be done once.
+2. Spawn the dom0 VM by running the following command. It is expected to have no output.
 
-```shell
-$ LD_LIBRARY_PATH=/data/honeycomb-ae/opt/honeycomb/lib /data/honeycomb-ae/opt/honeycomb/bin/host-agent --map_remote_pfn 1 -shm_file /sys/bus/pci/devices/0000\:00\:04.0/resource2_wc
+```
+$ cd /data/honeycomb-ae/opt/honeycomb/dom0-vm/
+$ ./run-dom0-vm.sh
 ```
 
-5. Start a minicom console:
+3. Start a new shell and SSH into the dom0 via `ssh -p 10022 root@127.0.0.1`. The password is `honeycomb`.
+4. In the dom0 console, insert the amdgpu driver and start the userspace host agent in dom0. It is expected to have no output.
+
+```shell
+$ modprobe amdgpu
+$ /data/honeycomb-ae/opt/honeycomb/bin/host-agent -shm_file /dev/kvmfr0 -vram_size 16368
+```
+
+5. Start a new shell and start a minicom console for application VM. You might press enter multiple times after app-vm is launched to see the output.
+
 ```shell
 $ cd /data/honeycomb-ae/opt/honeycomb/app-vm
 $ minicom -Dunix#./console.sock
 ```
-6. Spawn the application VM by running `/data/honeycomb-ae/opt/honeycomb/app-vm/run-app-vm.sh`. There are chances that the console will stuck without getting the IP addresses. You might need to try a few times. 
-7. Start the benchmark and collect the data. For example, run `figure7-data.sh --series sm`.
+
+6. Start a new shell and spawn the application VM:
+
+```shell
+$ cd /data/honeycomb-ae/opt/honeycomb/app-vm
+$ ./run-app-vm.sh
+```
+
+There are chances that the console will stuck at freeing memory without getting the IP addresses. You might need to kill the script and try a few times. 
+
+7. Go back to the minicom console, then start the benchmark and collect the data in application VM. For example, run `figure7-data.sh --series sm`. Note that in the VM if you killed the running script (i.e. the program exited abnormally) and tries to run another program, you need to restart the host-agent, otherwise it will crash and your next program will stuck. This is a known limitation.
 
 ## Figure 9: Latency on validating GPU kernels
 
